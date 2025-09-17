@@ -12,7 +12,7 @@ from langchain_core.tools import tool, InjectedToolArg
 from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
 from langchain_tavily import TavilySearch
 
-from langgraphs.genotype_engineering import prompts
+from langgraphs.blueprint_engineering import prompts
 from core.branch_context import BranchContext
 
 
@@ -22,39 +22,39 @@ LLM_MODEL = os.getenv("LLM_MODEL") or "grok-3-mini"
 
 
 
-class Genotype(BaseModel):
-    genotype: str = Field(
-        description="The 'genotype' which you are refining the idea into; this could be code, a prompt, etc., depending on the domain."
+class Blueprint(BaseModel):
+    blueprint: str = Field(
+        description="The 'blueprint' which you are refining the idea into; this could be code, a prompt, etc., depending on the domain."
     )
 
 
-class GenotypeState(TypedDict):
+class BlueprintState(TypedDict):
     design_task: str
     domain_description: str
 
     guidance: str
 
     idea: str
-    genotype: Optional[str]
+    blueprint: Optional[str]
     branch_context: Optional[BranchContext]
 
 
 
-async def start_genotype_engineering(state: GenotypeState) -> Dict:
+async def start_blueprint_engineering(state: BlueprintState) -> Dict:
     return {}
 
 
-async def generate_genotype(state: GenotypeState) -> Dict:
-    genotype_engineer = create_react_agent(
+async def generate_blueprint(state: BlueprintState) -> Dict:
+    blueprint_engineer = create_react_agent(
         model=LLM_MODEL,
         tools=[],
-        prompt=prompts.create_genotype_system_prompt(
+        prompt=prompts.create_blueprint_system_prompt(
             is_convergence_branch=state.get("branch_context") is not None
         ),
-        response_format=Genotype
+        response_format=Blueprint
     )
 
-    user_prompt = prompts.create_user_genotype_engineering_prompt(
+    user_prompt = prompts.create_user_blueprint_engineering_prompt(
         idea=state["idea"],
         design_task=state["design_task"],
         domain_description=state["domain_description"],
@@ -65,24 +65,24 @@ async def generate_genotype(state: GenotypeState) -> Dict:
 
     print(f"\n\n==== Creating Prompt from Idea ====\n\n")
 
-    raw_response = await genotype_engineer.ainvoke(input)
-    output: Genotype = raw_response["structured_response"]
+    raw_response = await blueprint_engineer.ainvoke(input)
+    output: Blueprint = raw_response["structured_response"]
 
-    print(f"\n\n==== CREATED PROMPT: ====\n{output.genotype}\n")
+    print(f"\n\n==== CREATED PROMPT: ====\n{output.blueprint}\n")
 
-    return {"genotype": output.genotype}
+    return {"blueprint": output.blueprint}
 
 
 
 def compile_graph():
-    builder = StateGraph(GenotypeState)
+    builder = StateGraph(BlueprintState)
 
-    builder.add_node("start_genotype_engineering", start_genotype_engineering)
-    builder.add_node("generate_genotype", generate_genotype)
+    builder.add_node("start_blueprint_engineering", start_blueprint_engineering)
+    builder.add_node("generate_blueprint", generate_blueprint)
 
-    builder.add_edge(START, "start_genotype_engineering")
-    builder.add_edge("start_genotype_engineering", "generate_genotype")
-    builder.add_edge("generate_genotype", END)
+    builder.add_edge(START, "start_blueprint_engineering")
+    builder.add_edge("start_blueprint_engineering", "generate_blueprint")
+    builder.add_edge("generate_blueprint", END)
 
     return builder.compile()
 
@@ -90,7 +90,7 @@ def compile_graph():
 async def run():
     graph = compile_graph()
 
-    input = GenotypeState(
+    input = BlueprintState(
         design_task="an architectural style that's never been seen before",
         domain_description="image generation with advanced diffusion model, July 2025",
         guidance="The model being used is FLUX1.1 KONTEXT. Prompts can be long, such as a paragraph (but probably 350 words strict maximum), and should be highly detailed -- rather than leaving any ambiguity up to the model, being explicit about details will generally yield better results. Note, there are no negative prompt tags like '--no xyz', or other tags like '[...]', but you can specify if you don't want something to happen in the prompt. The prompt, then, should be highly detailed and reflect the spirit/content/semantics of the IDEA that is given, just in a way that makes sense for FLUX1.1 KONTEXT.",
@@ -122,7 +122,8 @@ Signature Move
 SporeSynth Node
 At each intersection, the SporeSynth Node unites living fungus, acoustic metamaterial, and sensor-actuator networks. As wind stirs the lattice and visitors approach, these nodes orchestrate cascading pulses of color and harmonic resonance—transforming the entire façade into a sentient, musical organism that guides movement, heals urban noise, and illuminates the night.
 """,
-    genotype=None
+    blueprint=None,
+    branch_context=None
     )
 
     output = await graph.ainvoke(input)

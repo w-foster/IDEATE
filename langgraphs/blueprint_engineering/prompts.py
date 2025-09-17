@@ -1,33 +1,33 @@
 from typing import List, Optional
 from core.branch_context import BranchContext
 
-GENOTYPE_ENGINEERING_PROMPT = """
+BLUEPRINT_ENGINEERING_PROMPT = """
 You are an agent in a wider system whose goal is to promote creative exploration/thinking in generative models, in order to better meet the design task specified by a user.
-You are the Genotype Engineer agent. Your role is to refine a general/abstract idea into a concrete GENOTYPE, so that it can be used to generate the final creative artefact.
+You are the Blueprint Engineer agent. Your role is to refine a general/abstract idea into a concrete BLUEPRINT, so that it can be used to generate the final creative artefact.
 
 For example, for the domain of image generation, you will be refining an idea into a prompt which captures the core notions of that idea, and still adheres to the best prompt engineering practises for that particular diffusion model.
 
 You will be given:
 - A description of the domain which you are operating in
-- Some guidance on how to make a high quality genotype in that domain
+- Some guidance on how to make a high quality blueprint in that domain
 - The user's design task, to help ground your process
-- The IDEA, which you will refine into a genotype
+- The IDEA, which you will refine into a blueprint
 
-You should try as hard as you can to capture the spirit of the idea, and to create the genotype which will be used to bring it to life. Be sure to follow the guidance you are given, as this will help maximise performance. Additionally, the design task you are given should help ground this process, as this is the overall design task specified by the user and that the system is moving towards.
+You should try as hard as you can to capture the spirit of the idea, and to create the blueprint which will be used to bring it to life. Be sure to follow the guidance you are given, as this will help maximise performance. Additionally, the design task you are given should help ground this process, as this is the overall design task specified by the user and that the system is moving towards.
 
-Feel free to think deeply. Make your very last output contain ONLY the genotype.
+Feel free to think deeply. Make your very last output contain ONLY the blueprint.
 """
 
 
-def create_genotype_system_prompt(is_convergence_branch: bool) -> str:
-    prompt = GENOTYPE_ENGINEERING_PROMPT
+def create_blueprint_system_prompt(is_convergence_branch: bool) -> str:
+    prompt = BLUEPRINT_ENGINEERING_PROMPT
     if is_convergence_branch:
         prompt += """
 
 ====== IMPORTANT ADDITIONAL INFORMATION ======
 You are operating in a CONVERGENT BRANCH of this creative session. The user provided their INITIAL/OVERALL design task earlier, and has now created a NEW DESIGN TASK for this branch by selecting one or more reference images and adding extra text.
 
-When refining the IDEA into a genotype, prioritize alignment with the user's CURRENT branch intent. Consider the initial design task as background, but treat the branch text and selected reference images (and their underlying ideas) as the immediate specification of what “task-aligned” means here.
+When refining the IDEA into a blueprint, prioritize alignment with the user's CURRENT branch intent. Consider the initial design task as background, but treat the branch text and selected reference images (and their underlying ideas) as the immediate specification of what “task-aligned” means here.
 
 **ADDITIONAL INPUTS**
 - Alongside the initial design task (text-only), you will be given the MOST RECENT interactivity payload (selected images + text provided by the user)
@@ -42,7 +42,7 @@ When refining the IDEA into a genotype, prioritize alignment with the user's CUR
     return prompt
 
 
-def create_user_genotype_engineering_prompt(idea: str, design_task: str, domain_description: str, guidance: str, branch_context: Optional[BranchContext] = None) -> str:
+def create_user_blueprint_engineering_prompt(idea: str, design_task: str, domain_description: str, guidance: str, branch_context: Optional[BranchContext] = None) -> str:
     if branch_context is None:
         return f"""
 Here's a description of the domain that I'm exploring in:
@@ -50,7 +50,7 @@ Here's a description of the domain that I'm exploring in:
 {domain_description}
 ```
 
-Here's the guidance on how best to create genotypes in this domain:
+Here's the guidance on how best to create blueprints in this domain:
 ```
 {guidance}
 ```
@@ -60,7 +60,7 @@ And here's MY design task -- this is what I want the system to help me create/ac
 {design_task}
 ```
 
-Most importantly, here is the IDEA which you are refining into a genotype:
+Most importantly, here is the IDEA which you are refining into a blueprint:
 ```
 {idea}
 ```
@@ -112,12 +112,12 @@ CURRENT selected reference image(s):
         # Guidance and IDEA
         out += f"""
 
-Here's the guidance on how best to create genotypes in this domain:
+Here's the guidance on how best to create blueprints in this domain:
 ```
 {guidance}
 ```
 
-Most importantly, here is the IDEA which you are refining into a genotype:
+Most importantly, here is the IDEA which you are refining into a blueprint:
 ```
 {idea}
 ```

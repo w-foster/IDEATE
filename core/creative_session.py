@@ -21,13 +21,13 @@ from core.image_embedder import ImageEmbedder
 
 from langgraphs.strategising.creative_strategy_graph import compile_graph as compile_creative_strategy_graph
 from langgraphs.ideation.ideation_graph import compile_graph as compile_ideation_graph
-from langgraphs.genotype_engineering.genotype_engineering_graph import compile_graph as compile_genotype_engineering_graph
+from langgraphs.blueprint_engineering.blueprint_engineering_graph import compile_graph as compile_blueprint_engineering_graph
 from langgraphs.strategising.refine_creative_strategy_graph import compile_graph as compile_refine_creative_strategy_graph
 
 from langgraphs.ideation.ideation_graph import IdeationState, NewIdea
 from langgraphs.strategising.creative_strategy_graph import CreativeStrategyState
 from langgraphs.strategising.refine_creative_strategy_graph import CreativeStrategyRefinementState
-from langgraphs.genotype_engineering.genotype_engineering_graph import GenotypeState
+from langgraphs.blueprint_engineering.blueprint_engineering_graph import BlueprintState
 from langgraphs.archive_addition.archive_addition_graph import ArchiveAdditionState
 
 from core.branch_context import BranchContext
@@ -59,7 +59,7 @@ class CreativeSession:
 
         self.design_task = design_task
         self.domain_description = domain_description
-        self.genotype_guidance = genotpye_guidance
+        self.blueprint_guidance = genotpye_guidance
         self.creative_strategy: str = ""
 
         # for convergence vs divergence (set before Archive so it's available during construction)
@@ -107,7 +107,7 @@ class CreativeSession:
 
         self.creative_strategy_graph = compile_creative_strategy_graph()
         self.ideation_graph  = compile_ideation_graph()
-        self.genotype_engineering_graph = compile_genotype_engineering_graph()
+        self.blueprint_engineering_graph = compile_blueprint_engineering_graph()
         self.creative_strategy_refinement_graph = compile_refine_creative_strategy_graph()
 
         self.strategy_version_counter = 0
@@ -216,16 +216,16 @@ class CreativeSession:
             raw_response = await self.ideation_graph.ainvoke(ideation_input)
             new_idea = raw_response["new_idea"]
 
-            genotype_engineering_input = GenotypeState(
+            blueprint_engineering_input = BlueprintState(
                 design_task=self.design_task,
                 domain_description=self.domain_description,
-                guidance=self.genotype_guidance,
+                guidance=self.blueprint_guidance,
                 idea=new_idea,
-                genotype=None,
-                #branch_context=self.branch_context
+                blueprint=None,
+                branch_context=self.branch_context
             )
-            raw_response = await self.genotype_engineering_graph.ainvoke(genotype_engineering_input)
-            new_prompt = raw_response["genotype"]
+            raw_response = await self.blueprint_engineering_graph.ainvoke(blueprint_engineering_input)
+            new_prompt = raw_response["blueprint"]
 
             try:
                 result = await asyncio.wait_for(
@@ -495,7 +495,7 @@ class CreativeSession:
             "timestamp_utc":                   datetime.utcnow().isoformat(),
             "design_task":                     self.design_task,
             "domain_description":              self.domain_description,
-            "genotype_guidance":               self.genotype_guidance,
+            "blueprint_guidance":               self.blueprint_guidance,
             "using_fixed_strategy":            self.using_fixed_strategy,
             "bfl_model":                       str(self.bfl_model),
             "use_raw_mode":                    self.use_raw_mode,
@@ -528,7 +528,7 @@ class CreativeSession:
         session = cls(
             design_task               = cfg["design_task"],
             domain_description        = cfg["domain_description"],
-            genotpye_guidance         = cfg["genotype_guidance"],
+            genotpye_guidance         = cfg["blueprint_guidance"],
             bfl_model                 = FluxModel[cfg["bfl_model"].split(".")[-1]],
             use_raw_mode              = cfg["use_raw_mode"],
             using_fixed_strategy      = False,

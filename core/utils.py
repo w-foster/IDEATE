@@ -243,7 +243,7 @@ def init_run_dirs(base_results_dir: str):
 
 def save_prompt_text(run_id: str, sol_id: str, prompt: str, base_results_dir: str = "./results"):
     """
-    Persist the prompt/genotype to artifacts/prompts/{sol_id}.txt for a given run.
+    Persist the prompt/blueprint to artifacts/prompts/{sol_id}.txt for a given run.
     """
     prompts_dir = Path(base_results_dir) / run_id / "artifacts" / "prompts"
     prompts_dir.mkdir(parents=True, exist_ok=True)
