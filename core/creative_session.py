@@ -40,7 +40,7 @@ class CreativeSession:
         self,
         design_task: str,
         domain_description: str,
-        genotpye_guidance: str,
+        blueprint_guidance: str,
         bfl_model: FluxModel,
         use_raw_mode: bool = True,
         initial_seeds: Optional[List[str]] = None,
@@ -59,7 +59,7 @@ class CreativeSession:
 
         self.design_task = design_task
         self.domain_description = domain_description
-        self.blueprint_guidance = genotpye_guidance
+        self.blueprint_guidance = blueprint_guidance
         self.creative_strategy: str = ""
 
         # for convergence vs divergence (set before Archive so it's available during construction)
@@ -373,12 +373,12 @@ class CreativeSession:
 
             # Dump current population snapshot
             archive_sols = self.archive.get_all_solutions()
-            genome_ids = [sol.id for sol in archive_sols]
+            blueprint_ids = [sol.id for sol in archive_sols]
             population_entry = {
                 "generation": gen,
                 "timestamp": datetime.now().isoformat(),
-                "genome_ids": genome_ids,
-                "count": len(genome_ids),
+                "blueprint_ids": blueprint_ids,
+                "count": len(blueprint_ids),
             }
             pop_path = Path(self.results_dir) / "population_data.jsonl"
             with pop_path.open("a") as f:
@@ -454,7 +454,7 @@ class CreativeSession:
 
         # Overall metrics
         mean_novelty = float(np.mean(avg_distances))
-        mean_genome_length = float(
+        mean_blueprint_length = float(
             np.mean([len(sol.prompt or "") for sol in valid_sols])
         ) if valid_sols else 0.0
 
@@ -464,7 +464,7 @@ class CreativeSession:
             "timestamp": datetime.now().isoformat(),
             "avg_distance_to_neighbors": avg_distances,
             "mean_novelty": mean_novelty,
-            "mean_genome_length": mean_genome_length,
+            "mean_blueprint_length": mean_blueprint_length,
             "strategy_metrics": strategy_metrics,
         }
 
@@ -528,7 +528,7 @@ class CreativeSession:
         session = cls(
             design_task               = cfg["design_task"],
             domain_description        = cfg["domain_description"],
-            genotpye_guidance         = cfg["blueprint_guidance"],
+            blueprint_guidance         = cfg["blueprint_guidance"],
             bfl_model                 = FluxModel[cfg["bfl_model"].split(".")[-1]],
             use_raw_mode              = cfg["use_raw_mode"],
             using_fixed_strategy      = False,
@@ -547,7 +547,7 @@ class CreativeSession:
             for line in f:
                 entry = json.loads(line)
                 if entry["generation"] <= resume_after_generation:
-                    all_ids = entry["genome_ids"]
+                    all_ids = entry["blueprint_ids"]
 
         if not all_ids:
             raise ValueError(f"No solutions for gens ≤ {resume_after_generation}")
@@ -637,13 +637,13 @@ if __name__ == "__main__":
     # session = CreativeSession(
     #     design_task=quadruped_robot,
     #     domain_description=ambiguous_image_domain,
-    #     genotpye_guidance=PROMPT_ENGINEERING_GUIDANCE,
+    #     blueprint_guidance=PROMPT_ENGINEERING_GUIDANCE,
     #     bfl_model=BFL_MODEL,
     #     use_raw_mode=USE_RAW_MODE,
     #     using_fixed_strategy=False,
     #     max_archive_capacity=25,
     #     creative_strategy_refinement_interval=999
-    #     #genotpye_guidance="The model being used is FLUX1.1 KONTEXT. Prompts can be long, such as a paragraph (but probably 350 words strict maximum), and should be highly detailed -- rather than leaving any ambiguity up to the model, being explicit about details will generally yield better results. Note, there are no negative prompt tags like '--no xyz', or other tags like '[...]', but you can specify if you don't want something to happen in the prompt. The prompt, then, should be highly detailed and reflect the spirit/content/semantics of the IDEA that is given, just in a way that makes sense for FLUX1.1 KONTEXT."
+    #     #blueprint_guidance="The model being used is FLUX1.1 KONTEXT. Prompts can be long, such as a paragraph (but probably 350 words strict maximum), and should be highly detailed -- rather than leaving any ambiguity up to the model, being explicit about details will generally yield better results. Note, there are no negative prompt tags like '--no xyz', or other tags like '[...]', but you can specify if you don't want something to happen in the prompt. The prompt, then, should be highly detailed and reflect the spirit/content/semantics of the IDEA that is given, just in a way that makes sense for FLUX1.1 KONTEXT."
     # )
 
     tapir_robot = "Stalactite Mason Tapir \u2013 a broad-snouted, cave-roving quadruped robot that harvests mineral-rich drip water and 3-D prints ribbed calcite buttresses along fragile limestone tunnels; porous ceramic hide, silicone suction-pad feet, and faint aqua bioluminescent capillaries illuminate spelunkers who follow its head-lamp halo while it extrudes speleothem lattice arcs to steady cracking vaults."
@@ -687,7 +687,7 @@ The unmistakable stepped silhouette of St Kenelm’s tower at Sapperton anchors 
     session = CreativeSession(
         design_task=quadruped_robot,
         domain_description=ambiguous_image_domain,
-        genotpye_guidance=PROMPT_ENGINEERING_GUIDANCE,
+        blueprint_guidance=PROMPT_ENGINEERING_GUIDANCE,
         bfl_model=BFL_MODEL,
         use_raw_mode=USE_RAW_MODE,
         using_fixed_strategy=False,

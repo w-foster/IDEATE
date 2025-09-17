@@ -48,13 +48,13 @@ def resume_run(
     truncate_jsonl("novelty_metrics.jsonl")
 
     # 3) Copy only the first N artifact files
-    genome_ids = []
+    blueprint_ids = []
     with open(new / "population_data.jsonl") as f:
         for line in f:
-            genome_ids = json.loads(line)["genome_ids"]
+            blueprint_ids = json.loads(line)["blueprint_ids"]
 
-    old_run_id = genome_ids[0].split("_sol_")[0]
-    sol_suffixes = { full_id.split(f"{old_run_id}_",1)[1] for full_id in genome_ids }
+    old_run_id = blueprint_ids[0].split("_sol_")[0]
+    sol_suffixes = { full_id.split(f"{old_run_id}_",1)[1] for full_id in blueprint_ids }
 
     for subdir in ("images", "embeddings", "prompts", "metadata", "markdowns"):
         src_dir = old / "artifacts" / subdir

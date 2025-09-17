@@ -42,7 +42,7 @@ async def run_single(prompt: str,
     session = CreativeSession(
         design_task=prompt,
         domain_description=domain_description,
-        genotpye_guidance=PROMPT_ENGINEERING_GUIDANCE,
+        blueprint_guidance=PROMPT_ENGINEERING_GUIDANCE,
         bfl_model=model,
         use_raw_mode=use_raw_mode,
         using_fixed_strategy=False,
