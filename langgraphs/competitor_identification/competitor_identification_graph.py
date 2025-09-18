@@ -133,7 +133,7 @@ def compile_subgraph():
     return builder.compile()
 
 
-class OverallCompetitorIdentificationState(TypedDict):
+class OverallCompetitorIdentificationState(TypedDict):  # TODO: rename (away from 'overall')
     design_task: str
     domain_description: str
 

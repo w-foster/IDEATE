@@ -1,4 +1,4 @@
-from typing import TypedDict, Dict, List, Optional, cast
+from typing import TypedDict, Dict, List, Optional, Union, cast
 from pydantic import BaseModel, Field
 from dotenv import load_dotenv, find_dotenv
 import os
@@ -15,6 +15,7 @@ from langchain_openai import ChatOpenAI
 
 from langgraphs.strategising import prompts
 from core.solution import Solution
+from new_core.models.image_solution import ImageSolution  # temp just add in and union
 from core.branch_context import BranchContext
 
 
@@ -44,7 +45,7 @@ class CreativeStrategyRefinementState(TypedDict):
 
     current_strategy: str
     high_level_guardrails: str
-    archive_solutions: List[Solution]
+    archive_solutions: Union[List[Solution], List[ImageSolution]]
     num_offspring: int
 
     archive_analysis: str
