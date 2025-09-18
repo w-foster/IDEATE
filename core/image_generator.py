@@ -12,7 +12,7 @@ from dotenv import load_dotenv, find_dotenv
 
 load_dotenv(find_dotenv())
 
-BFL_API_LEY = os.getenv("BFL_API_KEY")
+BFL_API_KEY = os.getenv("BFL_API_KEY")
 
 class FluxModel(Enum):
     """Available FLUX models"""
@@ -48,7 +48,7 @@ class FluxAPIAdapter:
         base_url: str = "https://api.bfl.ai",
         local_save_dir: Optional[str] = "./generated_images"
     ):
-        self.api_key = api_key or BFL_API_LEY
+        self.api_key = api_key or BFL_API_KEY
         if not self.api_key:
             raise ValueError("API key required. Set BFL_API_KEY env var or pass api_key")
         
