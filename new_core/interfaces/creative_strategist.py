@@ -1,5 +1,6 @@
 from typing import Optional, Dict, Any
 from abc import ABC, abstractmethod
+from new_core.interfaces.archive_store import IArchiveStore
 from new_core.models.archive_feedback import ArchiveFeedback
 from new_core.models.creative_strategy import CreativeStrategy
 from new_core.models.task_constraints import TaskConstraints
@@ -17,7 +18,8 @@ class ICreativeStrategist(ABC):
         task_context: TaskContext, 
         task_constraints: TaskConstraints,
         strategy: CreativeStrategy, 
-        feedback: ArchiveFeedback
+        feedback: ArchiveFeedback,
+        archive: IArchiveStore
     ) -> CreativeStrategy:
         ... 
 

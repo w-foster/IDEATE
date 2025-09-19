@@ -23,7 +23,7 @@ load_dotenv(find_dotenv())
 
 
 class TaskConstraints(BaseModel):
-    guardrails: str = Field(
+    constraints: str = Field(
         description="The list of guardrails/constraints you are outputting",
         default=""
     )
@@ -58,7 +58,7 @@ async def generate_high_level_constraints(state: ConstraintsGenerationState) -> 
 
     output: TaskConstraints = raw_response["structured_response"]
 
-    return {"high_level_guardrails": output.guardrails}
+    return {"generated_constraints": output.constraints}
 
 
 

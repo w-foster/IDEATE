@@ -26,10 +26,6 @@ class LGIdeator(IIdeator):
         strategy: CreativeStrategy,
         archive: IArchiveStore
     ) -> Idea:
-
-        # handle None parent_solutions --> i think langgraph needs reworking for that
-        if parent_solutions is None:
-            raise RuntimeError("parent solution(s) must be selected; support for 'None' will be extended later")
         
         # TODO: consider how we want stuff liek this to be done.
         # There shld defo be a big rework of the langgraphs
@@ -37,20 +33,28 @@ class LGIdeator(IIdeator):
         # back onto our interfaces (e.g., passing an IArchiveStore and letting it figure it out)
         # ... maybe there is a middle ground. Either way there's defo cleanup needed
         archive_ideas_except_seeds = []
-        for sol in archive.all():
-            is_parent = False
+        parent_ideas = []
+        if parent_solutions is None:
+            archive_ideas_except_seeds = [sol.idea.text for sol in archive.all()]
+            parent_ideas = None
+        else:
+            for sol in list(archive.all()):
+                is_parent = False
+                for parent in parent_solutions:
+                    if parent.id == sol.id:
+                        is_parent = True
+                        break
+                if not is_parent:
+                    archive_ideas_except_seeds.append(sol.idea.text)
             for parent in parent_solutions:
-                if sol.id == parent.id:
-                    is_parent = True
-                    break
-            if is_parent:
-                continue
-            archive_ideas_except_seeds.append(sol.idea.text)
+                parent_ideas.append(parent.idea.text)
+        # change that section above^ ASAP it is so bad; reword langgraph state to 
+        # have a state schema which is more friendly to the new way we do things
 
         input_state: IdeationState = {
             "model_spec": to_langgraph_spec(self._ai_model_spec),
             "design_task": task_context.design_task,
-            "parent_ideas": [sol.idea.text for sol in parent_solutions],
+            "parent_ideas": parent_ideas,
             "archive_ideas_except_seeds": archive_ideas_except_seeds,
             "branch_context": None,  # TODO: add support later
             "creative_strategy": strategy.text,

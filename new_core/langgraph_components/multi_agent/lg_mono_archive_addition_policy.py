@@ -28,7 +28,7 @@ class LGMonoArchiveAdditionPolicy(IArchiveAdditionPolicy):
         run_config: RunConfig,
         archive: IArchiveStore,
         new_solution: ImageSolution,
-        flip_order: bool
+        randomise_order_for_llm: bool
     ) -> ArchiveAdditionDecision:
 
         input_state: ArchiveAdditionState = {
@@ -38,7 +38,7 @@ class LGMonoArchiveAdditionPolicy(IArchiveAdditionPolicy):
             "branch_context": None,  #TODO: add support later
             "archive_full": archive.is_full(),
             "archive_img_paths": [sol.img_path for sol in archive.all()],
-            "flip_order": flip_order,
+            "flip_order": randomise_order_for_llm,
             "max_comparisons_at_once": run_config.max_solution_comparisons_per_call,
             "new_img_path": new_solution.img_path,
         }

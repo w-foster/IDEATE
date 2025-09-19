@@ -11,7 +11,6 @@ from new_core.models.task_constraints import TaskConstraints
 from new_core.session import utils
 from new_core.interfaces.archive_analyser import IArchiveAnalyser
 from new_core.interfaces.archive_store import IArchiveStore
-from new_core.interfaces.competitor_identifier import ICompetitorIdentifier
 from new_core.interfaces.creative_strategist import ICreativeStrategist
 from new_core.interfaces.ideator import IIdeator
 from new_core.interfaces.image_generator import IImageGenerator
@@ -45,8 +44,6 @@ class CreativeSession:
         strategist: ICreativeStrategist,
         archive_analyser: IArchiveAnalyser,
         constraints_generator: IConstraintsGenerator,
-        competitor_identifier: ICompetitorIdentifier,
-        pairwise_evaluator: IPairwiseEvaluator,
 
         # Image embedder
         image_embedder: IImageEmbedder,
@@ -63,8 +60,6 @@ class CreativeSession:
         self._archive_addition_policy = archive_addition_policy
         self._strategist = strategist
         self._archive_analyser = archive_analyser
-        self._competitor_identifier = competitor_identifier
-        self._pairwise_evaluator = pairwise_evaluator
         self._constraints_generator = constraints_generator
         
         # config / context / state
@@ -117,7 +112,8 @@ class CreativeSession:
                 task_context=self._ctx,
                 task_constraints=constraints,
                 strategy=active_strategy,
-                feedback=new_feedback
+                feedback=new_feedback,
+                archive=self._archive
             )
             strat_id = self._state.push_strategy_and_activate(refined_strategy)
 

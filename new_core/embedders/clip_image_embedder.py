@@ -1,11 +1,13 @@
 import torch
 from PIL import Image
-import clip  
+import clip
+
+from new_core.interfaces.image_embedder import IImageEmbedder  
 
 def get_device():
     return "cuda" if torch.cuda.is_available() else "cpu"
 
-class CLIPImageEmbedder:
+class CLIPImageEmbedder(IImageEmbedder):
     def __init__(self, clip_model: str = "ViT-B/32", device: str | None = None):
         self.device = device or get_device()
         self.model, self.preprocess = clip.load(clip_model, device=self.device)

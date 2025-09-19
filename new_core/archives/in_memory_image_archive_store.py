@@ -29,3 +29,6 @@ class InMemoryImageArchiveStore(IArchiveStore):
 
     def is_full(self) -> bool:
         return self.size() >= self._max_capacity
+
+    def is_empty(self) -> bool:
+        return self.size() <= 0

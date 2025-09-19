@@ -1,5 +1,5 @@
 from typing import Optional, Dict
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, PrivateAttr
 
 from new_core.models.task_constraints import TaskConstraints
 from new_core.models.archive_feedback import ArchiveFeedback
@@ -13,11 +13,11 @@ class StrategyEntry(BaseModel):
 # TODO: add more getters/setters to emulate a private-membered dataclass
 # e.g., 'increment_solutions_generated' instead of setting it to += 1 directly
 class RunState(BaseModel):
-    _current_generation: int = 0
-    _solutions_generated: int = 0
-    _task_constraints: Optional[TaskConstraints] = None
-    _active_strategy_id: Optional[str] = None
-    _strategies: Dict[str, StrategyEntry] = Field(default_factory=dict)
+    _current_generation: int = PrivateAttr(default=0)
+    _solutions_generated: int = PrivateAttr(default=0)
+    _task_constraints: Optional[TaskConstraints] = PrivateAttr(default=None)
+    _active_strategy_id: Optional[str] = PrivateAttr(default=None)
+    _strategies: Dict[str, StrategyEntry] = PrivateAttr(default_factory=dict)
 
     _next_strategy_seq: int = 1 
 

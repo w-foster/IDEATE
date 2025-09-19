@@ -1,4 +1,4 @@
-from typing import Optional, Dict, Any, cast
+from typing import Optional, Dict, Any, cast, override
 from new_core.interfaces.creative_strategist import ICreativeStrategist
 from new_core.interfaces.archive_store import IArchiveStore
 from new_core.langgraph_components.utils import to_langgraph_spec
@@ -8,9 +8,9 @@ from new_core.models.creative_strategy import CreativeStrategy
 from new_core.models.task_constraints import TaskConstraints
 from new_core.models.task_context import TaskContext
 
-from langgraphs.strategising.creative_strategy_graph import (
+from langgraphs.strategising.external_constraints_creative_strategy_graph import (
     compile_graph as compile_creative_strategy_graph,
-    CreativeStrategyState,
+    CreativeStrategyState
 )
 from langgraphs.strategising.refine_creative_strategy_graph import (
     compile_graph as compile_refine_creative_strategy_graph,
@@ -30,20 +30,19 @@ class LGResearchCreativeStrategist(ICreativeStrategist):
             "model_spec": to_langgraph_spec(self._ai_model_spec),
             "design_task": task_context.design_task,
             "domain_description": task_context.domain_description,
-            "generated_strategy": None,
-            "high_level_guardrails": task_constraints.text,
-            "branch_context": None    # TODO: extend support once branching is reworked
+            "high_level_task_constraints": task_constraints.text,
         }
 
         final_state = await self._strategy_from_task_graph.ainvoke(input_state)
         final_state = cast(CreativeStrategyState, final_state)
         
-        if final_state["generated_strategy"] is None:
-            raise RuntimeError("key 'generated_strategy' is None after graph invocation completed")
+        if "generated_strategy" not in final_state:
+            raise RuntimeError("key 'generated_strategy' is missing from final state of creative strategy graph")
         return CreativeStrategy(
             text=final_state["generated_strategy"]
         )
 
+    @override
     async def refine_existing_strategy(
         self, 
         task_context: TaskContext, 
