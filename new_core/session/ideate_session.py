@@ -24,6 +24,7 @@ class IDEATESession:
         archive: IArchiveStore,
         strategist: ICreativeStrategist,
         archive_analyser: IArchiveAnalyser,
+        constraints_generator: 
         ideator: IIdeator,
         prompt_engineer: IPromptEngineer,
         image_generator: IImageGenerator,

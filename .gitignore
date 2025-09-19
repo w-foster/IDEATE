@@ -3,6 +3,8 @@ generated_images/
 old_images/
 results/
 
+todo.txt
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

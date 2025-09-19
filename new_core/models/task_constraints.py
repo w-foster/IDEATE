@@ -1,4 +1,4 @@
 from pydantic import BaseModel
 
-class TaskGuardrails(BaseModel):
+class TaskConstraints(BaseModel):
     text: str

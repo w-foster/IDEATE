@@ -57,7 +57,7 @@ class LGMonoArchiveAdditionPolicy(IArchiveAdditionPolicy):
             if sol.img_path == to_remove_path:
                 remove_id = sol.id
 
-        decision_reasoning = "To be added..."  #TODO: handle this. ideally its the LangGraph's responsibility
+        decision_reasoning = {"dummy": "To be added..."}  #TODO: handle this. ideally its the LangGraph's responsibility
 
         return ArchiveAdditionDecision(
             add_new_solution =add_new_solution,

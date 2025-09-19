@@ -1,9 +1,9 @@
 from typing import Optional, Dict, Any, cast
-from new_core.interfaces import archive_store
 from new_core.interfaces.creative_strategist import ICreativeStrategist
 from new_core.interfaces.archive_store import IArchiveStore
 from new_core.models.archive_feedback import ArchiveFeedback
 from new_core.models.creative_strategy import CreativeStrategy
+from new_core.models.task_constraints import TaskConstraints
 from new_core.models.task_context import TaskContext
 
 from langgraphs.strategising.creative_strategy_graph import (
@@ -14,22 +14,20 @@ from langgraphs.strategising.refine_creative_strategy_graph import (
     compile_graph as compile_refine_creative_strategy_graph,
     CreativeStrategyRefinementState,
 )
-from new_core.models.task_guardrails import TaskGuardrails
 
 
 class LGResearchCreativeStrategist(ICreativeStrategist):
-    def __init__(self, refinement_interval: int, guardrails: TaskGuardrails) -> None:
+    def __init__(self, refinement_interval: int) -> None:
         self._strategy_from_task_graph = compile_creative_strategy_graph()
-        self._refine_strategy_graph = compile_refine_creative_strategy_graph()
-        self._guardrails = guardrails
+        self._refine_strategy_graph = compile_refine_creative_strategy_graph()        
         self._refinement_interval = refinement_interval
 
-    async def generate_strategy_from_task(self, task_context: TaskContext) -> CreativeStrategy:
+    async def generate_strategy_from_task(self, task_context: TaskContext, task_constraints: TaskConstraints) -> CreativeStrategy:
         input_state: CreativeStrategyState = {
             "design_task": task_context.design_task,
             "domain_description": task_context.domain_description,
             "generated_strategy": None,
-            "high_level_guardrails": self._guardrails.text,
+            "high_level_guardrails": task_constraints.text,
             "branch_context": None    # TODO: extend support once branching is reworked
         }
 
@@ -42,12 +40,19 @@ class LGResearchCreativeStrategist(ICreativeStrategist):
             text=final_state["generated_strategy"]
         )
 
-    async def refine_existing_strategy(self, task_context: TaskContext, strategy: CreativeStrategy, feedback: ArchiveFeedback, archive: IArchiveStore) -> CreativeStrategy:
+    async def refine_existing_strategy(
+        self, 
+        task_context: TaskContext, 
+        task_constraints: TaskConstraints,
+        strategy: CreativeStrategy, 
+        feedback: ArchiveFeedback, 
+        archive: IArchiveStore
+    ) -> CreativeStrategy:
         input_state: CreativeStrategyRefinementState = {
             "design_task": task_context.design_task,
             "domain_description": task_context.domain_description,
             "current_strategy": strategy.text,
-            "high_level_guardrails": self._guardrails.text,
+            "high_level_guardrails": task_constraints.text,
             "archive_solutions": list(archive.all()),     # TODO: rework langgraphs to use ImageSolution??
             "num_offspring": self._refinement_interval,
             "archive_analysis": feedback.text,
