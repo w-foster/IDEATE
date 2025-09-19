@@ -2,6 +2,7 @@
 from operator import add
 from typing import cast
 from new_core.interfaces.archive_store import IArchiveStore
+from new_core.langgraph_agents.utils import to_langgraph_spec
 from new_core.models.ai_model_spec import AIModelSpec
 from new_core.models.archive_addition_decision import ArchiveAdditionDecision
 from new_core.models.image_solution import ImageSolution
@@ -31,6 +32,7 @@ class LGMonoArchiveAdditionPolicy(IArchiveAdditionPolicy):
     ) -> ArchiveAdditionDecision:
 
         input_state: ArchiveAdditionState = {
+            "model_spec": to_langgraph_spec(self._ai_model_spec),
             "design_task": task_context.design_task,
             "domain_description": task_context.domain_description,
             "branch_context": None,  #TODO: add support later
