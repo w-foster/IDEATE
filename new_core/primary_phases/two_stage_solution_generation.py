@@ -15,7 +15,7 @@ from new_core.models.solution_generation_result import SolutionGenerationResult
 from new_core.models.task_context import TaskContext
 
 
-class LGSolutionGeneration(ISolutionGenerator):
+class TwoStageSolutionGeneration(ISolutionGenerator):
     def __init__(
         self,
         ideator: IIdeator,

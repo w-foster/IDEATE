@@ -23,12 +23,6 @@ CREATIVE_STRATEGY_LLM_MODEL = os.getenv("CREATIVE_STRATEGY_LLM_MODEL") or "opena
 # LLM_API_KEY = os.getenv("LLM_API_KEY")
 
 
-class CreativeStrategy(BaseModel):
-    creative_strategy: str = Field(
-        description="The entire creative strategy, in detail",
-        default=""
-    )
-
 class TaskConstraints(BaseModel):
     guardrails: str = Field(
         description="The list of guardrails/constraints you are outputting",
@@ -81,19 +75,19 @@ def compile_graph():
 
 
 
-async def run():
-    graph = compile_graph()
+# async def run():
+#     graph = compile_graph()
 
-    input = CreativeStrategyState(
-        design_task="a road",
-        domain_description="image generation via an advanced diffusion model",
-        generated_strategy=None,
-        high_level_guardrails=None,
-        branch_context=None
-    )
+#     input = CreativeStrategyState(
+#         design_task="a road",
+#         domain_description="image generation via an advanced diffusion model",
+#         generated_strategy=None,
+#         high_level_guardrails=None,
+#         branch_context=None
+#     )
 
-    output = await graph.ainvoke(input)
+#     output = await graph.ainvoke(input)
 
 
-if __name__ == "__main__":
-    asyncio.run(run())
+# if __name__ == "__main__":
+#     asyncio.run(run())

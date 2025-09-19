@@ -3,6 +3,7 @@
 from typing import Optional, cast
 from new_core.interfaces.archive_store import IArchiveStore
 from new_core.interfaces.competitor_identifier import ICompetitorIdentifier
+from new_core.models.ai_model_spec import AIModelSpec
 from new_core.models.image_solution import ImageSolution
 
 from langgraphs.competitor_identification.competitor_identification_graph import (
@@ -19,7 +20,8 @@ from new_core.models.task_context import TaskContext
 
 
 class LGCompetitorIdentifier(ICompetitorIdentifier):
-    def __init__(self):
+    def __init__(self, ai_model_spec: AIModelSpec):
+        self._ai_model_spec = ai_model_spec
         self._identify_most_similar_solution_graph = compile_identify_most_similar_graph()
         self._identify_too_similar_solution_or_none_graph = compile_identify_too_similar_or_none_graph()
 

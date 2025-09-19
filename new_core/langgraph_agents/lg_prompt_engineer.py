@@ -1,4 +1,6 @@
+from typing import cast
 from new_core.interfaces.prompt_engineer import IPromptEngineer
+from new_core.models.ai_model_spec import AIModelSpec
 from new_core.models.diffusion_prompt import DiffusionPrompt
 from new_core.models.idea import Idea
 from new_core.models.task_context import TaskContext
@@ -10,7 +12,8 @@ from langgraphs.blueprint_engineering.blueprint_engineering_graph import (
 
 
 class LGPromptEngineer(IPromptEngineer):
-    def __init__(self):
+    def __init__(self, ai_model_spec: AIModelSpec):
+        self._ai_model_spec = ai_model_spec
         self._prompt_engineering_graph = compile_prompt_engineering_graph()
 
     async def idea_to_prompt(self, task_context: TaskContext, idea: Idea) -> DiffusionPrompt:
@@ -61,7 +64,7 @@ a) If YES: you **MUST** clearly state that style within the prompt, and don't mi
 b) If NO: you must make a judgement, but often defaulting to photo-realism is best (e.g., for "a boat", or "a road"), unless another style is implicit (e.g., "a logo of XYZ")
 - EXAMPLES:
 -- “oil painting with visible brushstrokes”
--- “shot on 50 mm lens at golden hour, slight film grain”
+-- “shot on 50mm lens at golden hour, slight film grain”
 -- “vector-art style with flat colors and bold outlines”
 - ADDITIONAL RULE:
 -- **DO NOT** mix styles remember; do NOT add '8K' or 'cinematic shot' to a task for a 'painting of XYZ' or 'ink-wash of ABC'

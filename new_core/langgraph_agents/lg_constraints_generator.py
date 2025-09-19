@@ -11,7 +11,8 @@ from new_core.models.task_constraints import TaskConstraints
 from new_core.models.task_context import TaskContext
 
 class LGConstraintsGenerator(IConstraintsGenerator):
-    def __init__(self):
+    def __init__(self, ai_model_spec: AIModelSpec):
+        self._ai_model_spec = ai_model_spec
         self._constraints_generation_graph = compile_constraints_generation_graph()
     
     async def generate_constraints_for_task(

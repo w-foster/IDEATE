@@ -2,6 +2,7 @@
 from operator import add
 from typing import cast
 from new_core.interfaces.archive_store import IArchiveStore
+from new_core.models.ai_model_spec import AIModelSpec
 from new_core.models.archive_addition_decision import ArchiveAdditionDecision
 from new_core.models.image_solution import ImageSolution
 from new_core.models.run_config import RunConfig
@@ -16,7 +17,8 @@ from langgraphs.archive_addition.archive_addition_graph import (
 
 # Using monolith LangGraph
 class LGMonoArchiveAdditionPolicy(IArchiveAdditionPolicy):
-    def __init__(self):
+    def __init__(self, ai_model_spec: AIModelSpec):
+        self._ai_model_spec = ai_model_spec
         self._archive_addition_graph = compile_archive_addition_graph()
 
     async def decide(
@@ -60,7 +62,7 @@ class LGMonoArchiveAdditionPolicy(IArchiveAdditionPolicy):
         decision_reasoning = {"dummy": "To be added..."}  #TODO: handle this. ideally its the LangGraph's responsibility
 
         return ArchiveAdditionDecision(
-            add_new_solution =add_new_solution,
+            add_new_solution=add_new_solution,
             remove_id=remove_id,
             decision_reasoning=decision_reasoning
         )

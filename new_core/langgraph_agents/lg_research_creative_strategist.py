@@ -1,6 +1,7 @@
 from typing import Optional, Dict, Any, cast
 from new_core.interfaces.creative_strategist import ICreativeStrategist
 from new_core.interfaces.archive_store import IArchiveStore
+from new_core.models.ai_model_spec import AIModelSpec
 from new_core.models.archive_feedback import ArchiveFeedback
 from new_core.models.creative_strategy import CreativeStrategy
 from new_core.models.task_constraints import TaskConstraints
@@ -17,7 +18,8 @@ from langgraphs.strategising.refine_creative_strategy_graph import (
 
 
 class LGResearchCreativeStrategist(ICreativeStrategist):
-    def __init__(self, refinement_interval: int) -> None:
+    def __init__(self, ai_model_spec: AIModelSpec, refinement_interval: int) -> None:
+        self._ai_model_spec = ai_model_spec
         self._strategy_from_task_graph = compile_creative_strategy_graph()
         self._refine_strategy_graph = compile_refine_creative_strategy_graph()        
         self._refinement_interval = refinement_interval

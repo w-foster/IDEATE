@@ -1,6 +1,7 @@
 from typing import cast
 
 from new_core.interfaces.pairwise_evaluator import IPairwiseEvaluator
+from new_core.models.ai_model_spec import AIModelSpec
 from new_core.models.task_context import TaskContext
 from new_core.models.image_solution import ImageSolution
 
@@ -11,7 +12,8 @@ from langgraphs.evaluation.pairwise_evaluation_graph import (
 
 
 class LGPairwiseEvaluator(IPairwiseEvaluator):
-    def __init__(self, flip_order: bool = False) -> None:
+    def __init__(self, ai_model_spec: AIModelSpec, flip_order: bool = False) -> None:
+        self._ai_model_spec = ai_model_spec
         self._evaluation_graph = compile_evaluation_graph()
         self._flip_order = flip_order
     

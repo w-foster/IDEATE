@@ -1,6 +1,7 @@
 from typing import Optional, List, cast
 from new_core.interfaces.archive_store import IArchiveStore
 from new_core.interfaces.ideator import IIdeator
+from new_core.models.ai_model_spec import AIModelSpec
 from new_core.models.creative_strategy import CreativeStrategy
 from new_core.models.idea import Idea
 from new_core.models.image_solution import ImageSolution
@@ -13,7 +14,8 @@ from langgraphs.ideation.ideation_graph import (
 
 
 class LGIdeator(IIdeator):
-    def __init__(self):
+    def __init__(self, ai_model_spec: AIModelSpec):
+        self._ai_model_spec = ai_model_spec
         self._ideation_graph = compile_ideation_graph()
 
     async def ideate(
