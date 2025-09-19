@@ -21,18 +21,19 @@ load_dotenv(find_dotenv())
 MODEL = os.getenv("LLM_MODEL") or "grok-3-mini"
 
 
-
 class NewIdea(BaseModel):
     idea: str = Field(description="The one new idea you generated (just the idea)", default="")
 
+# TODO: rework this to make it way cleaner
 class IdeationState(TypedDict):
     design_task: str
     domain_descripton: str
 
     creative_strategy: str
-    archive_ideas_except_seeds: List[str]  # EXCLUDING the seed ideas
+    archive_ideas_except_seeds: List[str]  # EXCLUDING the parent ideas
 
-    seed_ideas: List[str]
+    parent_ideas: Optional[List[str]]
+
     new_idea: Optional[str]
 
     branch_context: Optional[BranchContext]
@@ -51,7 +52,7 @@ async def generate_idea(state: IdeationState) -> Dict:
         creative_strategy=state["creative_strategy"],
         design_task=state["design_task"],
         domain_description=state["domain_descripton"],
-        seed_ideas=state["seed_ideas"],
+        parent_ideas=state["parent_ideas"],
         archive_ideas_except_seeds=state["archive_ideas_except_seeds"],
         branch_context=state["branch_context"]
     )
@@ -65,7 +66,6 @@ async def generate_idea(state: IdeationState) -> Dict:
     print(f"\n\n==== NEW IDEA: ====\n{output.idea}\n")
 
     return {"new_idea": output.idea}
-
 
 
 def compile_graph():

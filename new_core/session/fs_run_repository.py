@@ -77,7 +77,7 @@ class FSRunRepository(IRunRepository):
         domain_description: str,
         model_used: str,
         added_to_archive: bool,
-        addition_workflow_output: Optional[Dict[str, Any]],
+        addition_decision_reasoning: Optional[Dict[str, Any]] = None,
     ) -> str:
         """
         Mirrors core.utils.create_solution_markdown style exactly:
@@ -95,7 +95,7 @@ class FSRunRepository(IRunRepository):
                             else (solution.img_path or "No image available")
 
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        addition_info = self._format_archive_addition_info(addition_workflow_output, added_to_archive)
+        addition_info = self._format_archive_addition_info(addition_decision_reasoning, added_to_archive)
 
         md = f"""# Solution {sol_id}
 
@@ -149,6 +149,7 @@ class FSRunRepository(IRunRepository):
         model_used: str,
         added_to_archive: bool,
         strategy_version: str,
+        addition_decision_reasoning: Optional[Dict[str, Any]] = None,
         generation_params: Optional[Dict[str, Any]] = None,
         extra: Optional[Dict[str, Any]] = None,
     ) -> str:
@@ -198,40 +199,25 @@ class FSRunRepository(IRunRepository):
             f.write(json.dumps(obj) + "\n")
 
     @staticmethod
-    def _format_archive_addition_info(workflow_output: Optional[Dict[str, Any]], added: bool) -> str:
-        if not workflow_output:
+    def _format_archive_addition_info(addition_workflow_output: Optional[Dict[str, Any]], added: bool) -> str:
+        """
+        Dump the archive addition details without assuming any schema.
+        If details are absent, emit the legacy placeholder line.
+        """
+        if not addition_workflow_output:
             return "NO ARCHIVE ADDITION INFO AVAILABLE (likely because this was the first solution)"
-        novelty = "Status: N/A (no novelty check occurred; perhaps archive was already full)"
-        if "novelty_check_result" in workflow_output:
-            ncr = workflow_output["novelty_check_result"]
-            is_novel = ncr.get("is_novel_enough") if isinstance(ncr, dict) else getattr(ncr, "is_novel_enough", None)
-            if is_novel is True:
-                novelty = "Status: PASS - new img deemed novel enough"
-            elif is_novel is False:
-                novelty = "Status: FAIL - new img deemed too similar to an archive img"
 
-        evaluation_info = "Status: N/A (no eval occurred; perhaps archive was not full and img passed novelty check)"
-        if "evaluation_result" in workflow_output and "competing_img_paths" in workflow_output:
-            comp_paths = workflow_output["competing_img_paths"]
-            new_img_path = workflow_output.get("new_img_path")
-            competitor_path = comp_paths[0] if comp_paths[0] != new_img_path else comp_paths[1]
-            evaluation_info = "Status: PASS" if added else "Status: FAIL"
-
-            res = workflow_output["evaluation_result"]
-            reasoning = res.get("reasoning") if isinstance(res, dict) else getattr(res, "reasoning", None)
-            conf = res.get("confidence_level") if isinstance(res, dict) else getattr(res, "confidence_level", None)
-            evaluation_info += f"\nCompetitor: {competitor_path}"
-            if reasoning is not None:
-                evaluation_info += f"\nReasoning: {reasoning}"
-            if conf is not None:
-                evaluation_info += f"\nConfidence Level (/10): {conf}"
+        # Pretty-print the entire structure as JSON so downstream tools/humans can inspect it.
+        try:
+            payload = json.dumps(addition_workflow_output, indent=2)
+        except Exception:
+            payload = str(addition_workflow_output)
 
         return f"""
-## Novelty Check
-{novelty}
-
-## Evaluation
-{evaluation_info}
+## Archive Addition Details
+```json
+{payload}
+```
 """.strip()
 
     def save_image_from_url(self, run_dir: str, sol_id: str, sample_url: str) -> str:

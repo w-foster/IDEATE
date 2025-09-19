@@ -52,7 +52,7 @@ class IRunRepository(ABC):
         domain_description: str,
         model_used: str,
         added_to_archive: bool,
-        addition_workflow_output: Optional[Dict[str, Any]],
+        addition_decision_reasoning: Optional[Dict[str, Any]] = None,
     ) -> str:
         ...
 
@@ -67,6 +67,7 @@ class IRunRepository(ABC):
         model_used: str,
         added_to_archive: bool,
         strategy_version: str,
+        addition_decision_reasoning: Optional[Dict[str, Any]] = None,
         generation_params: Optional[Dict[str, Any]] = None,
         extra: Optional[Dict[str, Any]] = None,
     ) -> str:

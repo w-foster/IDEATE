@@ -46,12 +46,15 @@ class LGIdeator(IIdeator):
 
         input_state: IdeationState = {
             "design_task": task_context.design_task,
-            "seed_ideas": [sol.idea.text for sol in parent_solutions],  # TODO: replace 'seed' with 'parent'
+            "parent_ideas": [sol.idea.text for sol in parent_solutions],
             "archive_ideas_except_seeds": archive_ideas_except_seeds,
             "branch_context": None,  # TODO: add support later
             "creative_strategy": strategy.text,
             "domain_descripton": task_context.domain_description,
-            "new_idea": None  # TODO: change to NotRequired or whatever. But tbh thats annoying too... idk. Maybe i shld look into non-common I/O states
+            # TODO: change new_idea to NotRequired. But tbh thats annoying too... maybe i shld look into having 
+            # separate final state for graphs, because tbh it shld be the graph's responsibility to return
+            # non-None and non-missing stuff for what the caller is expecting to get out of the graph invocation
+            "new_idea": None  
         }
 
         final_state = await self._ideation_graph.ainvoke(input_state)

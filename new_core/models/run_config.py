@@ -9,6 +9,7 @@ class RunConfig(BaseModel):
     offspring_per_generation: int
     parents_per_ideation: int
     initial_ideation_count: int
+    randomise_order_for_llm: bool
     random_seed: Optional[int] = None
 
 

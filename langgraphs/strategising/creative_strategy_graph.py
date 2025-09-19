@@ -50,12 +50,12 @@ async def start_strategy_generation(state: CreativeStrategyState) -> Dict:
 async def generate_high_level_guardrails(state: CreativeStrategyState) -> Dict:
     guardrails_generator = create_react_agent(
         model=CREATIVE_STRATEGY_LLM_MODEL,
-        prompt=prompts.create_guardrails_system_prompt(is_convergence_branch=state["branch_context"] is not None),
+        prompt=prompts.create_constraints_system_prompt(is_convergence_branch=state["branch_context"] is not None),
         response_format=StrategyGuardrails,
         tools=[]
     )
 
-    user_prompt: HumanMessage = prompts.create_user_guardrails_request_prompt(
+    user_prompt: HumanMessage = prompts.create_user_constraints_request_prompt(
         domain_description=state["domain_description"],
         design_task=state["design_task"],
         branch_context=state["branch_context"]

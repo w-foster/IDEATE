@@ -3,7 +3,7 @@
 from typing import cast
 from new_core.interfaces.constraints_generator import IConstraintsGenerator
 
-from langgraphs.misc.constraints_generation import (
+from langgraphs.strategising.constraints_generation_graph import (
     compile_graph as compile_constraints_generation_graph,
     ConstraintsGenerationState
 )

@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Optional, Iterable
+from new_core.models.archive_addition_decision import ArchiveAdditionDecision
 from new_core.models.image_solution import ImageSolution
 
 class IArchiveStore(ABC):
@@ -30,3 +31,13 @@ class IArchiveStore(ABC):
     @abstractmethod
     def is_empty(self) -> bool:
         ...
+
+    # non-policy convenience; wrapper around add and remove 
+    def apply_decision(self, new_solution: ImageSolution, decision: ArchiveAdditionDecision) -> bool:
+        """Applies ArchiveAdditionDecision; returns True if new solution was added, False otherwise"""
+        if decision.add_new_solution:
+            if decision.remove_id:
+                self.remove(decision.remove_id)
+            self.add(new_solution)
+            return True
+        return False

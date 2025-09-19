@@ -15,6 +15,6 @@ class IArchiveAdditionPolicy(ABC):
         run_config: RunConfig,
         archive: IArchiveStore,
         new_solution: ImageSolution,
-        flip_order: bool
+        randomise_order_for_llm: bool
     ) -> ArchiveAdditionDecision:
         ...
