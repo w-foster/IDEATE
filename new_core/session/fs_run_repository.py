@@ -181,6 +181,8 @@ class FSRunRepository(IRunRepository):
             "local_image_copy": local_img_str,
             "generation_params": generation_params,
         }
+        if addition_decision_reasoning is not None:
+            record["addition_decision_reasoning"] = addition_decision_reasoning
         if extra:
             for k, v in extra.items():
                 if k != "generation_params":

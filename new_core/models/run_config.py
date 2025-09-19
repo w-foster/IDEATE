@@ -10,6 +10,6 @@ class RunConfig(BaseModel):
     parents_per_ideation: int
     initial_ideation_count: int
     randomise_order_for_llm: bool
-    random_seed: Optional[int] = None
+    random_seed: Optional[int] = None  #TODO: add proper usage of this thruout
 
 
