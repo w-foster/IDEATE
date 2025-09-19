@@ -15,11 +15,11 @@ from langchain_tavily import TavilySearch
 from langgraphs.strategising import prompts
 # remove this dependency eventually
 from core.branch_context import BranchContext
+from langgraphs.types import LGModelSpec
+from langgraphs.utils import agent_model_name
 
 load_dotenv(find_dotenv())
 
-CREATIVE_STRATEGY_LLM_MODEL = os.getenv("CREATIVE_STRATEGY_LLM_MODEL") or "openai:o3"
-# LLM_API_KEY = os.getenv("LLM_API_KEY")
 
 
 class CreativeStrategy(BaseModel):
@@ -36,6 +36,7 @@ class StrategyGuardrails(BaseModel):
 
 
 class CreativeStrategyState(TypedDict):
+    model_spec: LGModelSpec
     design_task: str
     domain_description: str
     generated_strategy: Optional[str]
@@ -49,7 +50,7 @@ async def start_strategy_generation(state: CreativeStrategyState) -> Dict:
 
 async def generate_high_level_guardrails(state: CreativeStrategyState) -> Dict:
     guardrails_generator = create_react_agent(
-        model=CREATIVE_STRATEGY_LLM_MODEL,
+        model=agent_model_name(state["model_spec"]),
         prompt=prompts.create_constraints_system_prompt(is_convergence_branch=state["branch_context"] is not None),
         response_format=StrategyGuardrails,
         tools=[]
@@ -74,7 +75,7 @@ async def generate_high_level_guardrails(state: CreativeStrategyState) -> Dict:
 
 async def generate_strategy(state: CreativeStrategyState) -> Dict:
     strategy_generator = create_react_agent(
-        model=CREATIVE_STRATEGY_LLM_MODEL,
+        model=agent_model_name(state["model_spec"]),
         prompt=prompts.create_creative_strategy_generation_system_prompt(is_convergence_branch=state["branch_context"] is not None),
         tools=[TavilySearch(max_results=10)],
         response_format=CreativeStrategy
@@ -119,19 +120,19 @@ def compile_graph():
 
 
 
-async def run():
-    graph = compile_graph()
+# async def run():
+#     graph = compile_graph()
 
-    input = CreativeStrategyState(
-        design_task="a road",
-        domain_description="image generation via an advanced diffusion model",
-        generated_strategy=None,
-        high_level_guardrails=None,
-        branch_context=None
-    )
+#     input = CreativeStrategyState(
+#         design_task="a road",
+#         domain_description="image generation via an advanced diffusion model",
+#         generated_strategy=None,
+#         high_level_guardrails=None,
+#         branch_context=None
+#     )
 
-    output = await graph.ainvoke(input)
+#     output = await graph.ainvoke(input)
 
 
-if __name__ == "__main__":
-    asyncio.run(run())
+# if __name__ == "__main__":
+#     asyncio.run(run())

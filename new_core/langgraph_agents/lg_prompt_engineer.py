@@ -1,5 +1,6 @@
 from typing import cast
 from new_core.interfaces.prompt_engineer import IPromptEngineer
+from new_core.langgraph_agents.utils import to_langgraph_spec
 from new_core.models.ai_model_spec import AIModelSpec
 from new_core.models.diffusion_prompt import DiffusionPrompt
 from new_core.models.idea import Idea
@@ -18,6 +19,7 @@ class LGPromptEngineer(IPromptEngineer):
 
     async def idea_to_prompt(self, task_context: TaskContext, idea: Idea) -> DiffusionPrompt:
         input_state: PromptEngineeringState = {
+            "model_spec": to_langgraph_spec(self._ai_model_spec),
             "branch_context": None,  #TODO: add support later
             "design_task": task_context.design_task,
             "domain_description": task_context.domain_description,

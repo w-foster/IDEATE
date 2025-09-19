@@ -15,10 +15,11 @@ from langchain_tavily import TavilySearch
 # remove this dependency eventually
 from core.branch_context import BranchContext
 from langgraphs.ideation import prompts
+from langgraphs.types import LGModelSpec
+from langgraphs.utils import agent_model_name
 
 load_dotenv(find_dotenv())
 
-MODEL = os.getenv("LLM_MODEL") or "grok-3-mini"
 
 
 class NewIdea(BaseModel):
@@ -26,6 +27,7 @@ class NewIdea(BaseModel):
 
 # TODO: rework this to make it way cleaner
 class IdeationState(TypedDict):
+    model_spec: LGModelSpec
     design_task: str
     domain_descripton: str
 
@@ -42,7 +44,7 @@ class IdeationState(TypedDict):
 
 async def generate_idea(state: IdeationState) -> Dict:
     ideator = create_react_agent(
-        model=MODEL,
+        model=agent_model_name(state["model_spec"]),
         tools=[],
         prompt=prompts.create_ideation_system_prompt(is_convergence_branch=state["branch_context"] is not None),
         response_format=NewIdea

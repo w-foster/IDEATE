@@ -17,11 +17,11 @@ from langchain_openai import ChatOpenAI
 
 from langgraphs.novelty_checking import prompts
 from core.branch_context import BranchContext
+from langgraphs.types import LGModelSpec
 
 
 load_dotenv(find_dotenv())
 
-VLM_MODEL = os.getenv("VLM_MODEL") or "gpt-4o"
 
 
 class NoveltyCheck(BaseModel):
@@ -36,6 +36,7 @@ class NoveltyCheck(BaseModel):
 
 
 class NoveltyCheckState(TypedDict):
+    model_spec: LGModelSpec
     design_task: str
     domain_description: str
 
@@ -51,7 +52,7 @@ class NoveltyCheckState(TypedDict):
 
 
 async def check_novelty(state: NoveltyCheckState):
-    novelty_checker = ChatOpenAI(model=VLM_MODEL).with_structured_output(NoveltyCheck)
+    novelty_checker = ChatOpenAI(model=state["model_spec"]["name"]).with_structured_output(NoveltyCheck)
 
     system_msg = AIMessage(content=prompts.create_novelty_system_prompt(
         is_convergence_branch=state.get("branch_context") is not None
@@ -101,32 +102,32 @@ def compile_graph():
 
 
 
-async def run():
-    graph = compile_graph()
+# async def run():
+#     graph = compile_graph()
 
-    new_img_file_name = "special2.png"
-    archive_img_file_names = [
-        "front2.png",
-        "diff.png",
-        "special1.png",
-        "front1.png"
-    ]
+#     new_img_file_name = "special2.png"
+#     archive_img_file_names = [
+#         "front2.png",
+#         "diff.png",
+#         "special1.png",
+#         "front1.png"
+#     ]
 
-    input = NoveltyCheckState(
-        design_task="an architectural style that's never been seen before",
-        domain_description="image gen via diffusion models, july 2025",
-        new_img_path=new_img_file_name,
-        archive_img_paths=archive_img_file_names,
-    )
+#     input = NoveltyCheckState(
+#         design_task="an architectural style that's never been seen before",
+#         domain_description="image gen via diffusion models, july 2025",
+#         new_img_path=new_img_file_name,
+#         archive_img_paths=archive_img_file_names,
+#     )
 
-    raw_response = await graph.ainvoke(input)
-    print(raw_response)
-
-
+#     raw_response = await graph.ainvoke(input)
+#     print(raw_response)
 
 
-if __name__ == "__main__":
-    asyncio.run(run())
+
+
+# if __name__ == "__main__":
+#     asyncio.run(run())
 
 
 

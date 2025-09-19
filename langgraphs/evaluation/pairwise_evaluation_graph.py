@@ -16,11 +16,11 @@ from langchain_openai import ChatOpenAI
 
 from langgraphs.evaluation import prompts
 from core.branch_context import BranchContext
+from langgraphs.types import LGModelSpec
 
 
 load_dotenv(find_dotenv())
 
-VLM_MODEL = os.getenv("VLM_MODEL") or "o3"
 
 
 class Evaluation(BaseModel):
@@ -30,6 +30,7 @@ class Evaluation(BaseModel):
 
 
 class EvaluationState(TypedDict):
+    model_spec: LGModelSpec
     design_task: str 
     domain_description: str
 
@@ -45,7 +46,7 @@ class EvaluationState(TypedDict):
 
 
 async def evaluate_images(state: EvaluationState):
-    evaluator = ChatOpenAI(model=VLM_MODEL).with_structured_output(Evaluation)
+    evaluator = ChatOpenAI(model=state["model_spec"]["name"]).with_structured_output(Evaluation)
 
     system_msg = AIMessage(content=prompts.create_evaluation_system_prompt(
         is_convergence_branch=state.get("branch_context") is not None
@@ -94,27 +95,27 @@ def compile_graph():
 
 
 
-async def run():
-    graph = compile_graph()
+# async def run():
+#     graph = compile_graph()
 
-    img_file_names = ("special2.png", "front1.png")
+#     img_file_names = ("special2.png", "front1.png")
 
-    input = EvaluationState(
-        design_task="an architectural style that's never been seen before",
-        domain_description=(
-            "image generation with advanced diffusion model "
-            "called FLUX.1 KONTEXT, July 2025 -- your standards "
-            "should be high in terms of image quality"
-        ),
-        img_file_names=img_file_names,
-        flip_order=False
-    )
+#     input = EvaluationState(
+#         design_task="an architectural style that's never been seen before",
+#         domain_description=(
+#             "image generation with advanced diffusion model "
+#             "called FLUX.1 KONTEXT, July 2025 -- your standards "
+#             "should be high in terms of image quality"
+#         ),
+#         img_file_names=img_file_names,
+#         flip_order=False
+#     )
 
-    response = await graph.ainvoke(input)
-    print(response)
-
-
+#     response = await graph.ainvoke(input)
+#     print(response)
 
 
-if __name__ == "__main__":
-    asyncio.run(run())
+
+
+# if __name__ == "__main__":
+#     asyncio.run(run())

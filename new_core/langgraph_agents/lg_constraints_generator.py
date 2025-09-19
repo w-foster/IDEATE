@@ -7,6 +7,8 @@ from langgraphs.strategising.constraints_generation_graph import (
     compile_graph as compile_constraints_generation_graph,
     ConstraintsGenerationState
 )
+from new_core.langgraph_agents.utils import to_langgraph_spec
+from new_core.models.ai_model_spec import AIModelSpec
 from new_core.models.task_constraints import TaskConstraints
 from new_core.models.task_context import TaskContext
 
@@ -21,6 +23,7 @@ class LGConstraintsGenerator(IConstraintsGenerator):
     ) -> TaskConstraints:
 
         input_state: ConstraintsGenerationState = {
+            "model_spec": to_langgraph_spec(self._ai_model_spec),
             "design_task": task_context.design_task,
             "domain_description": task_context.domain_description
         }

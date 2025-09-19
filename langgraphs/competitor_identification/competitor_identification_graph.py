@@ -19,12 +19,12 @@ from langchain_tavily import TavilySearch
 from langchain_openai import ChatOpenAI
 
 from langgraphs.competitor_identification import prompts
+from langgraphs.types import LGModelSpec
 
 
 load_dotenv(find_dotenv())
 
 
-VLM_MODEL = os.getenv("VLM_MODEL") or "o3"
 
 
 class MostSimilar(BaseModel):
@@ -34,6 +34,7 @@ class MostSimilar(BaseModel):
 
 
 class IdentifyMostSimilarRequest(BaseModel):
+    model_spec: LGModelSpec
     design_task: str
     domain_description: str
 
@@ -44,6 +45,7 @@ class IdentifyMostSimilarRequest(BaseModel):
 
 
 class PartialCompetitorIdentificationState(TypedDict):
+    model_spec: LGModelSpec
     design_task: str
     domain_description: str
 
@@ -77,6 +79,7 @@ async def split_archive(state: PartialCompetitorIdentificationState):
         rem -= 1
     
     return [Send("find_most_similar_from_subset", IdentifyMostSimilarRequest(
+        model_spec=state["model_spec"],
         design_task=state["design_task"],
         domain_description=state["domain_description"],
         new_img_path=state["new_img_path"],
@@ -85,7 +88,7 @@ async def split_archive(state: PartialCompetitorIdentificationState):
 
 
 async def find_most_similar_from_subset(request: IdentifyMostSimilarRequest) -> Dict:
-    similar_img_identifier = ChatOpenAI(model=VLM_MODEL).with_structured_output(MostSimilar)
+    similar_img_identifier = ChatOpenAI(model=request.model_spec["name"]).with_structured_output(MostSimilar)
 
     selected_archive_img_paths = request.selected_archive_img_paths
     system_msg = AIMessage(content=prompts.FIND_MOST_SIMILAR_IMAGE_PROMPT)
@@ -134,6 +137,7 @@ def compile_subgraph():
 
 
 class OverallCompetitorIdentificationState(TypedDict):  # TODO: rename (away from 'overall')
+    model_spec: LGModelSpec
     design_task: str
     domain_description: str
 
@@ -149,6 +153,7 @@ async def initialise_candidates(state: OverallCompetitorIdentificationState) -> 
     find_similar_images_graph = compile_subgraph()
 
     initial_input = PartialCompetitorIdentificationState(
+        model_spec=state["model_spec"],
         design_task=state["design_task"],
         domain_description=state["domain_description"],
         current_candidate_img_paths=state["archive_img_paths"],
@@ -160,6 +165,7 @@ async def initialise_candidates(state: OverallCompetitorIdentificationState) -> 
     output = await find_similar_images_graph.ainvoke(initial_input)
     while len(output["comparison_winner_img_paths"]) > 1:
         new_input = PartialCompetitorIdentificationState(
+            model_spec=state["model_spec"],
             design_task=state["design_task"],
             domain_description=state["domain_description"],
             current_candidate_img_paths=output["comparison_winner_img_paths"],
@@ -184,30 +190,30 @@ def compile_graph():
 
 
 
-async def run():
-    graph = compile_graph()
+# async def run():
+#     graph = compile_graph()
 
-    new_img_file_name = "special2.png"
-    archive_img_file_names = [
-        "front2.png",
-        "diff.png",
-        "special1.png",
-        "front1.png"
-    ]
+#     new_img_file_name = "special2.png"
+#     archive_img_file_names = [
+#         "front2.png",
+#         "diff.png",
+#         "special1.png",
+#         "front1.png"
+#     ]
 
-    input = OverallCompetitorIdentificationState(
-        design_task="an architectural style that's never been seen before",
-        domain_description="image generation via advanced diffusion model, july 2025",
-        archive_img_paths=archive_img_file_names,
-        new_img_path=new_img_file_name,
-        max_comparisons=2
-    )
+#     input = OverallCompetitorIdentificationState(
+#         design_task="an architectural style that's never been seen before",
+#         domain_description="image generation via advanced diffusion model, july 2025",
+#         archive_img_paths=archive_img_file_names,
+#         new_img_path=new_img_file_name,
+#         max_comparisons=2
+#     )
 
-    raw_response = await graph.ainvoke(input)
-    print(raw_response)
-
-
+#     raw_response = await graph.ainvoke(input)
+#     print(raw_response)
 
 
-if __name__ == "__main__":
-    asyncio.run(run())
+
+
+# if __name__ == "__main__":
+#     asyncio.run(run())

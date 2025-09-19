@@ -1,6 +1,7 @@
 from typing import cast
 
 from new_core.interfaces.pairwise_evaluator import IPairwiseEvaluator
+from new_core.langgraph_agents.utils import to_langgraph_spec
 from new_core.models.ai_model_spec import AIModelSpec
 from new_core.models.task_context import TaskContext
 from new_core.models.image_solution import ImageSolution
@@ -25,6 +26,7 @@ class LGPairwiseEvaluator(IPairwiseEvaluator):
     ) -> ImageSolution:
 
         input_state: EvaluationState = {
+            "model_spec": to_langgraph_spec(self._ai_model_spec),
             "design_task": task_context.design_task,
             "domain_description": task_context.domain_description,
             "img_file_names": (solution_one.img_path, solution_two.img_path),

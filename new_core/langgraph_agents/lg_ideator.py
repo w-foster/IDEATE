@@ -1,6 +1,7 @@
 from typing import Optional, List, cast
 from new_core.interfaces.archive_store import IArchiveStore
 from new_core.interfaces.ideator import IIdeator
+from new_core.langgraph_agents.utils import to_langgraph_spec
 from new_core.models.ai_model_spec import AIModelSpec
 from new_core.models.creative_strategy import CreativeStrategy
 from new_core.models.idea import Idea
@@ -47,6 +48,7 @@ class LGIdeator(IIdeator):
             archive_ideas_except_seeds.append(sol.idea.text)
 
         input_state: IdeationState = {
+            "model_spec": to_langgraph_spec(self._ai_model_spec),
             "design_task": task_context.design_task,
             "parent_ideas": [sol.idea.text for sol in parent_solutions],
             "archive_ideas_except_seeds": archive_ideas_except_seeds,

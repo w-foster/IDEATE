@@ -14,11 +14,11 @@ from langchain_tavily import TavilySearch
 
 from langgraphs.blueprint_engineering import prompts
 from core.branch_context import BranchContext
+from langgraphs.types import LGModelSpec
+from langgraphs.utils import agent_model_name
 
 
 load_dotenv(find_dotenv())
-
-LLM_MODEL = os.getenv("LLM_MODEL") or "grok-3-mini"
 
 
 
@@ -29,6 +29,7 @@ class Blueprint(BaseModel):
 
 
 class BlueprintState(TypedDict):
+    model_spec: LGModelSpec
     design_task: str
     domain_description: str
 
@@ -46,7 +47,7 @@ async def start_blueprint_engineering(state: BlueprintState) -> Dict:
 
 async def generate_blueprint(state: BlueprintState) -> Dict:
     blueprint_engineer = create_react_agent(
-        model=LLM_MODEL,
+        model=agent_model_name(state["model_spec"]),
         tools=[],
         prompt=prompts.create_blueprint_system_prompt(
             is_convergence_branch=state.get("branch_context") is not None
@@ -87,50 +88,50 @@ def compile_graph():
     return builder.compile()
 
 
-async def run():
-    graph = compile_graph()
+# async def run():
+#     graph = compile_graph()
 
-    input = BlueprintState(
-        design_task="an architectural style that's never been seen before",
-        domain_description="image generation with advanced diffusion model, July 2025",
-        guidance="The model being used is FLUX1.1 KONTEXT. Prompts can be long, such as a paragraph (but probably 350 words strict maximum), and should be highly detailed -- rather than leaving any ambiguity up to the model, being explicit about details will generally yield better results. Note, there are no negative prompt tags like '--no xyz', or other tags like '[...]', but you can specify if you don't want something to happen in the prompt. The prompt, then, should be highly detailed and reflect the spirit/content/semantics of the IDEA that is given, just in a way that makes sense for FLUX1.1 KONTEXT.",
-        idea="""
-MycoSonic Filigree
+#     input = BlueprintState(
+#         design_task="an architectural style that's never been seen before",
+#         domain_description="image generation with advanced diffusion model, July 2025",
+#         guidance="The model being used is FLUX1.1 KONTEXT. Prompts can be long, such as a paragraph (but probably 350 words strict maximum), and should be highly detailed -- rather than leaving any ambiguity up to the model, being explicit about details will generally yield better results. Note, there are no negative prompt tags like '--no xyz', or other tags like '[...]', but you can specify if you don't want something to happen in the prompt. The prompt, then, should be highly detailed and reflect the spirit/content/semantics of the IDEA that is given, just in a way that makes sense for FLUX1.1 KONTEXT.",
+#         idea="""
+# MycoSonic Filigree
 
-Concept
-A living, lace-like façade where interwoven acoustic ribs and bioluminescent fungal nodes form a dynamic “instrument skin” that breathes wind, footsteps, and voices into cascades of light and harmonic resonance.
+# Concept
+# A living, lace-like façade where interwoven acoustic ribs and bioluminescent fungal nodes form a dynamic “instrument skin” that breathes wind, footsteps, and voices into cascades of light and harmonic resonance.
 
-Visual Vocabulary
+# Visual Vocabulary
 
-Filigree Lattice: Delicate, triangular acoustic ribs in deep bronze and emerald tones, forming a semi-transparent grid
+# Filigree Lattice: Delicate, triangular acoustic ribs in deep bronze and emerald tones, forming a semi-transparent grid
 
-Mycelial Nodes: Hexagonal spore capsules at each rib junction, glowing in shifting bioluminescent hues
+# Mycelial Nodes: Hexagonal spore capsules at each rib junction, glowing in shifting bioluminescent hues
 
-Resonant Shadowplay: Perforations in the ribs cast moving spectrogram-like patterns of light and shadow onto surrounding surfaces
+# Resonant Shadowplay: Perforations in the ribs cast moving spectrogram-like patterns of light and shadow onto surrounding surfaces
 
-Material & Technology
+# Material & Technology
 
-Adaptive Acoustic Ribs: Composite polymer-metal panels with shape-memory alloy cores that adjust micro-chamber depths to retune wind-driven overtones and regulate airflow
+# Adaptive Acoustic Ribs: Composite polymer-metal panels with shape-memory alloy cores that adjust micro-chamber depths to retune wind-driven overtones and regulate airflow
 
-Biolume Spore Capsules: Genetically engineered mycelium infused with multi-phase luciferase, housed in translucent resin shells for color-cycling glow
+# Biolume Spore Capsules: Genetically engineered mycelium infused with multi-phase luciferase, housed in translucent resin shells for color-cycling glow
 
-SporeSynth Nodes: Modular bio-electronic connectors combining piezoelectric sensors, micro-actuators, and fungal tissue—transducing ambient stimuli into synchronized waves of light and sound
+# SporeSynth Nodes: Modular bio-electronic connectors combining piezoelectric sensors, micro-actuators, and fungal tissue—transducing ambient stimuli into synchronized waves of light and sound
 
-Hidden Structural Frame: A slender steel-timber hybrid skeleton that carries loads and conceals utilities behind the living filigree
+# Hidden Structural Frame: A slender steel-timber hybrid skeleton that carries loads and conceals utilities behind the living filigree
 
-Signature Move
-SporeSynth Node
-At each intersection, the SporeSynth Node unites living fungus, acoustic metamaterial, and sensor-actuator networks. As wind stirs the lattice and visitors approach, these nodes orchestrate cascading pulses of color and harmonic resonance—transforming the entire façade into a sentient, musical organism that guides movement, heals urban noise, and illuminates the night.
-""",
-    blueprint=None,
-    branch_context=None
-    )
+# Signature Move
+# SporeSynth Node
+# At each intersection, the SporeSynth Node unites living fungus, acoustic metamaterial, and sensor-actuator networks. As wind stirs the lattice and visitors approach, these nodes orchestrate cascading pulses of color and harmonic resonance—transforming the entire façade into a sentient, musical organism that guides movement, heals urban noise, and illuminates the night.
+# """,
+#     blueprint=None,
+#     branch_context=None
+#     )
 
-    output = await graph.ainvoke(input)
+#     output = await graph.ainvoke(input)
 
-    print(output)
+#     print(output)
 
 
 
-if __name__ == "__main__":
-    asyncio.run(run())
+# if __name__ == "__main__":
+#     asyncio.run(run())

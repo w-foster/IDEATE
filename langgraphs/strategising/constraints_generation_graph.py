@@ -16,11 +16,10 @@ from core import branch_context
 from langgraphs.strategising import prompts
 # remove this dependency eventually
 from core.branch_context import BranchContext
+from langgraphs.types import LGModelSpec
+from langgraphs.utils import agent_model_name
 
 load_dotenv(find_dotenv())
-
-CREATIVE_STRATEGY_LLM_MODEL = os.getenv("CREATIVE_STRATEGY_LLM_MODEL") or "openai:o3"   #TODO: consider moving model names/versions away from env vars surely
-# LLM_API_KEY = os.getenv("LLM_API_KEY")
 
 
 class TaskConstraints(BaseModel):
@@ -30,6 +29,7 @@ class TaskConstraints(BaseModel):
     )
 
 class ConstraintsGenerationState(TypedDict):
+    model_spec: LGModelSpec
     design_task: str
     domain_description: str
     generated_constraints: NotRequired[str]
@@ -38,7 +38,7 @@ class ConstraintsGenerationState(TypedDict):
 
 async def generate_high_level_constraints(state: ConstraintsGenerationState) -> Dict:
     constraints_generator = create_react_agent(
-        model=CREATIVE_STRATEGY_LLM_MODEL,
+        model=agent_model_name(state["model_spec"]),
         prompt=prompts.create_constraints_system_prompt(is_convergence_branch=False),  # TODO: support convergence later
         response_format=TaskConstraints,
         tools=[]

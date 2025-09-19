@@ -32,10 +32,10 @@ from langgraphs.competitor_identification.competitor_identification_graph import
 )
 
 from core.branch_context import BranchContext
+from langgraphs.types import LGModelSpec
 
 load_dotenv(find_dotenv())
 
-VLM_MODEL = os.getenv("VLM_MODEL") or "gpt-4o"
 
 """
 1) Is archive full?
@@ -50,6 +50,7 @@ VLM_MODEL = os.getenv("VLM_MODEL") or "gpt-4o"
 
 
 class ArchiveAdditionState(TypedDict):
+    model_spec: LGModelSpec
     design_task: str
     domain_description: str
 
@@ -84,6 +85,7 @@ async def check_novelty(state: ArchiveAdditionState) -> Command[Literal["evaluat
     novelty_graph = compile_novelty_check_graph()
 
     input = NoveltyCheckState(
+        model_spec=state["model_spec"],
         design_task=state["design_task"],
         domain_description=state["domain_description"],
         archive_img_paths=state["archive_img_paths"],
@@ -124,6 +126,7 @@ async def check_novelty(state: ArchiveAdditionState) -> Command[Literal["evaluat
 async def find_most_similar(state: ArchiveAdditionState) -> Dict:
     find_competitor_graph = compile_competitor_identification_graph()
     input = OverallCompetitorIdentificationState(
+        model_spec=state["model_spec"],
         design_task=state["design_task"],
         domain_description=state["domain_description"],
         archive_img_paths=state["archive_img_paths"],
@@ -149,6 +152,7 @@ async def evaluate_pair(state: ArchiveAdditionState) -> Dict:
     
     evalation_graph = compile_evaluation_graph()
     input = EvaluationState(
+        model_spec=state["model_spec"],
         design_task=state["design_task"],
         domain_description=state["domain_description"],
         img_file_names=state["competing_img_paths"],
@@ -202,30 +206,30 @@ def compile_graph():
     return builder.compile()
 
     
-async def run():
-    graph = compile_graph()
+# async def run():
+#     graph = compile_graph()
 
-    new_img_file_name = "special2.png"
-    archive_img_file_names = [
-        "front2.png",
-        "diff.png",
-        "special1.png",
-        "front1.png"
-    ]
+#     new_img_file_name = "special2.png"
+#     archive_img_file_names = [
+#         "front2.png",
+#         "diff.png",
+#         "special1.png",
+#         "front1.png"
+#     ]
 
-    archive_full_input = ArchiveAdditionState(
-        design_task="an architectural style that's never been seen before",
-        domain_description="image generation via advanced diffusion model, july 2025",
-        new_img_path=new_img_file_name,
-        archive_img_paths=archive_img_file_names,
-        archive_full=True,
-        max_comparisons_at_once=5,
-        flip_order=False
-    )
-    archive_full_output = await graph.ainvoke(archive_full_input)
-    archive_full_output = cast(ArchiveAdditionState, archive_full_output)
-    print(archive_full_output)
+#     archive_full_input = ArchiveAdditionState(
+#         design_task="an architectural style that's never been seen before",
+#         domain_description="image generation via advanced diffusion model, july 2025",
+#         new_img_path=new_img_file_name,
+#         archive_img_paths=archive_img_file_names,
+#         archive_full=True,
+#         max_comparisons_at_once=5,
+#         flip_order=False
+#     )
+#     archive_full_output = await graph.ainvoke(archive_full_input)
+#     archive_full_output = cast(ArchiveAdditionState, archive_full_output)
+#     print(archive_full_output)
 
 
-if __name__ == "__main__":
-    asyncio.run(run())
+# if __name__ == "__main__":
+#     asyncio.run(run())

@@ -3,6 +3,7 @@
 from typing import Optional, cast
 from new_core.interfaces.archive_store import IArchiveStore
 from new_core.interfaces.competitor_identifier import ICompetitorIdentifier
+from new_core.langgraph_agents.utils import to_langgraph_spec
 from new_core.models.ai_model_spec import AIModelSpec
 from new_core.models.image_solution import ImageSolution
 
@@ -40,6 +41,7 @@ class LGCompetitorIdentifier(ICompetitorIdentifier):
     
     async def _identify_most_similar(self, task_context: TaskContext, run_config: RunConfig, new_solution: ImageSolution, archive: IArchiveStore) -> ImageSolution:
         input_state: OverallCompetitorIdentificationState = {
+            "model_spec": to_langgraph_spec(self._ai_model_spec),
             "design_task": task_context.design_task,
             "domain_description": task_context.domain_description,
             "max_comparisons": run_config.max_solution_comparisons_per_call,
@@ -69,6 +71,7 @@ class LGCompetitorIdentifier(ICompetitorIdentifier):
     
     async def _identify_too_similar_or_none(self, task_context: TaskContext, run_config: RunConfig, new_solution: ImageSolution, archive: IArchiveStore) -> Optional[ImageSolution]:
         input_state: NoveltyCheckState = {
+            "model_spec": to_langgraph_spec(self._ai_model_spec),
             "design_task": task_context.design_task,
             "domain_description": task_context.domain_description,
             "branch_context": None,  # TODO: add support later
