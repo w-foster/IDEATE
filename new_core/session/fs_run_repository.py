@@ -3,6 +3,7 @@ from pathlib import Path
 from datetime import datetime
 import json
 import base64, requests
+import numpy as np
 
 from new_core.interfaces.run_repository import IRunRepository
 from new_core.models.image_solution import ImageSolution
@@ -233,4 +234,11 @@ class FSRunRepository(IRunRepository):
             r = requests.get(sample_url, timeout=10)
             r.raise_for_status()
             out.write_bytes(r.content)
+        return str(out)
+    
+    def save_image_embedding(self, run_dir: str, sol_id: str, emb_np: np.ndarray) -> str:
+        emb_dir = Path(run_dir) / "artifacts" / "embeddings"
+        emb_dir.mkdir(parents=True, exist_ok=True)
+        out = emb_dir / f"{sol_id}.npy"
+        np.save(out, emb_np)
         return str(out)

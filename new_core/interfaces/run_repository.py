@@ -2,6 +2,7 @@
 from abc import ABC, abstractmethod
 from typing import Dict, Any, List, Optional
 from new_core.models.image_solution import ImageSolution
+import numpy as np
 
 class IRunRepository(ABC):
     @abstractmethod
@@ -71,4 +72,8 @@ class IRunRepository(ABC):
         generation_params: Optional[Dict[str, Any]] = None,
         extra: Optional[Dict[str, Any]] = None,
     ) -> str:
+        ...
+    
+    @abstractmethod
+    def save_image_embedding(self, run_dir: str, sol_id: str, emb_np: np.ndarray) -> str:
         ...

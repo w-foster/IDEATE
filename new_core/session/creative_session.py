@@ -1,9 +1,10 @@
 from threading import local
 from typing import Dict, List, Optional
 from new_core.interfaces.constraints_generator import IConstraintsGenerator
-from new_core.interfaces.high_level import archive_addition_policy
-from new_core.interfaces.high_level.archive_addition_policy import IArchiveAdditionPolicy
-from new_core.interfaces.high_level.solution_generator import ISolutionGenerator
+from new_core.interfaces.high_level_stages import archive_addition_policy
+from new_core.interfaces.high_level_stages.archive_addition_policy import IArchiveAdditionPolicy
+from new_core.interfaces.high_level_stages.solution_generator import ISolutionGenerator
+from new_core.interfaces.image_embedder import IImageEmbedder
 from new_core.models.archive_addition_decision import ArchiveAdditionDecision
 from new_core.models.solution_generation_result import SolutionGenerationResult
 from new_core.models.task_constraints import TaskConstraints
@@ -22,9 +23,10 @@ from new_core.models.image_solution import ImageSolution
 from new_core.models.run_config import RunConfig
 from new_core.models.run_state import RunState
 from new_core.models.task_context import TaskContext
+from new_core.metrics.internal_novelty import build_novelty_entry
 
 
-class IDEATESession:
+class CreativeSession:
     def __init__(
         self,
         # Core data/configs
@@ -45,6 +47,9 @@ class IDEATESession:
         constraints_generator: IConstraintsGenerator,
         competitor_identifier: ICompetitorIdentifier,
         pairwise_evaluator: IPairwiseEvaluator,
+
+        # Image embedder
+        image_embedder: IImageEmbedder,
 
         # Persistence
         repo: IRunRepository,
@@ -72,6 +77,9 @@ class IDEATESession:
         self._run_dir: str = utils.make_run_dir(results_root, run_name)
         self._repo.init_layout(self._run_dir)
         self._repo.save_config(self._run_dir, self._cfg.model_dump())
+
+        # image embedder
+        self._image_embedder = image_embedder
     
     
     async def _ensure_strategy(self):
@@ -157,8 +165,6 @@ class IDEATESession:
         self._state.increment_num_solutions_generated()
         self._state.increment_current_generation_num()
 
-        self._persist_population()
-
 
     async def _initial_ideation(self):
         for _ in range(self._cfg.initial_ideation_count):
@@ -170,6 +176,8 @@ class IDEATESession:
 
         for gen in range(self._cfg.generations):
             await self._run_once()
+            # === PERSIST ===
+            self._persist_generation()
         return self._archive
 
     
@@ -205,15 +213,28 @@ class IDEATESession:
             strategy_version=self._state.get_active_strategy_id() or "None",
             generation_params=gen_metadata
         )
+
+        emb = self._image_embedder.embed(new_solution.img_path)
+        self._repo.save_image_embedding(self._run_dir, new_solution.id, emb.numpy())
     
-    def _persist_population(self) -> None:
+    def _persist_generation(self) -> None:
         self._repo.append_population(
             self._run_dir,
             self._state.get_current_generation_num(),
             [s.id for s in self._archive.all()],
         )
 
+        novelty_entry = build_novelty_entry(
+            run_dir=self._run_dir,
+            solutions=list(self._archive.all()),
+            k_neighbors=self._cfg.k_for_internal_novelty
+        )
+        if novelty_entry is None:
+            raise RuntimeError("Novelty entry is None in _persist_generation after build_novelty_entry")
+        novelty_entry["generation"] = self._state.get_current_generation_num()  # bit janky but its ok
+        self._repo.append_novelty_metrics(self._run_dir, novelty_entry)
 
+        
     def _package_new_solution(self, gen_result: SolutionGenerationResult) -> ImageSolution:
         sol_num = self._state.get_next_solution_num()
         sol_id = self._build_solution_id(sol_num)
@@ -222,6 +243,10 @@ class IDEATESession:
             sol_id=sol_id, 
             sample_url=gen_result.sample_path
         )
+
+        metadata = gen_result.gen_metadata or {}
+        metadata["strategy_version"] = self._state.get_active_strategy_id()
+
         return ImageSolution(
             id=sol_id,
             sol_num=sol_num,

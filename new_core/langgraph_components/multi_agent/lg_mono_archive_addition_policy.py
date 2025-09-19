@@ -9,7 +9,7 @@ from new_core.models.image_solution import ImageSolution
 from new_core.models.run_config import RunConfig
 from new_core.models.task_context import TaskContext
 
-from new_core.interfaces.high_level.archive_addition_policy import IArchiveAdditionPolicy
+from new_core.interfaces.high_level_stages.archive_addition_policy import IArchiveAdditionPolicy
 
 from langgraphs.archive_addition.archive_addition_graph import (
     compile_graph as compile_archive_addition_graph,

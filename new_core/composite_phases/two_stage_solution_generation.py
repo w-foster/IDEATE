@@ -3,7 +3,7 @@
 
 from typing import List, Optional
 from new_core.interfaces.archive_store import IArchiveStore
-from new_core.interfaces.high_level.solution_generator import ISolutionGenerator
+from new_core.interfaces.high_level_stages.solution_generator import ISolutionGenerator
 from new_core.interfaces.ideator import IIdeator
 from new_core.interfaces.image_generator import IImageGenerator
 from new_core.interfaces.prompt_engineer import IPromptEngineer
