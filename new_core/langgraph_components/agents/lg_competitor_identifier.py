@@ -3,7 +3,7 @@
 from typing import Optional, cast
 from new_core.interfaces.archive_store import IArchiveStore
 from new_core.interfaces.competitor_identifier import ICompetitorIdentifier
-from new_core.langgraph_agents.utils import to_langgraph_spec
+from new_core.langgraph_components.utils import to_langgraph_spec
 from new_core.models.ai_model_spec import AIModelSpec
 from new_core.models.image_solution import ImageSolution
 

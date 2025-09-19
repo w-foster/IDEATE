@@ -1,7 +1,7 @@
 from typing import Optional, List, cast
 from new_core.interfaces.archive_store import IArchiveStore
 from new_core.interfaces.ideator import IIdeator
-from new_core.langgraph_agents.utils import to_langgraph_spec
+from new_core.langgraph_components.utils import to_langgraph_spec
 from new_core.models.ai_model_spec import AIModelSpec
 from new_core.models.creative_strategy import CreativeStrategy
 from new_core.models.idea import Idea

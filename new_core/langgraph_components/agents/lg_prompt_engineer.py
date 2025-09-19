@@ -1,6 +1,6 @@
 from typing import cast
 from new_core.interfaces.prompt_engineer import IPromptEngineer
-from new_core.langgraph_agents.utils import to_langgraph_spec
+from new_core.langgraph_components.utils import to_langgraph_spec
 from new_core.models.ai_model_spec import AIModelSpec
 from new_core.models.diffusion_prompt import DiffusionPrompt
 from new_core.models.idea import Idea

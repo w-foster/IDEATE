@@ -7,7 +7,7 @@ from langgraphs.strategising.constraints_generation_graph import (
     compile_graph as compile_constraints_generation_graph,
     ConstraintsGenerationState
 )
-from new_core.langgraph_agents.utils import to_langgraph_spec
+from new_core.langgraph_components.utils import to_langgraph_spec
 from new_core.models.ai_model_spec import AIModelSpec
 from new_core.models.task_constraints import TaskConstraints
 from new_core.models.task_context import TaskContext

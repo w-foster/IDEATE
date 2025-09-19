@@ -1,7 +1,7 @@
 from typing import Optional, Dict, Any, cast
 from new_core.interfaces.creative_strategist import ICreativeStrategist
 from new_core.interfaces.archive_store import IArchiveStore
-from new_core.langgraph_agents.utils import to_langgraph_spec
+from new_core.langgraph_components.utils import to_langgraph_spec
 from new_core.models.ai_model_spec import AIModelSpec
 from new_core.models.archive_feedback import ArchiveFeedback
 from new_core.models.creative_strategy import CreativeStrategy
