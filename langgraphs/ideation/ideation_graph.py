@@ -15,24 +15,27 @@ from langchain_tavily import TavilySearch
 # remove this dependency eventually
 from core.branch_context import BranchContext
 from langgraphs.ideation import prompts
+from langgraphs.types import LGModelSpec
+from langgraphs.utils import agent_model_name
 
 load_dotenv(find_dotenv())
-
-MODEL = os.getenv("LLM_MODEL") or "grok-3-mini"
 
 
 
 class NewIdea(BaseModel):
     idea: str = Field(description="The one new idea you generated (just the idea)", default="")
 
+# TODO: rework this to make it way cleaner
 class IdeationState(TypedDict):
+    model_spec: LGModelSpec
     design_task: str
     domain_descripton: str
 
     creative_strategy: str
-    archive_ideas_except_seeds: List[str]  # EXCLUDING the seed ideas
+    archive_ideas_except_seeds: List[str]  # EXCLUDING the parent ideas
 
-    seed_ideas: List[str]
+    parent_ideas: Optional[List[str]]
+
     new_idea: Optional[str]
 
     branch_context: Optional[BranchContext]
@@ -41,7 +44,7 @@ class IdeationState(TypedDict):
 
 async def generate_idea(state: IdeationState) -> Dict:
     ideator = create_react_agent(
-        model=MODEL,
+        model=agent_model_name(state["model_spec"]),
         tools=[],
         prompt=prompts.create_ideation_system_prompt(is_convergence_branch=state["branch_context"] is not None),
         response_format=NewIdea
@@ -51,7 +54,7 @@ async def generate_idea(state: IdeationState) -> Dict:
         creative_strategy=state["creative_strategy"],
         design_task=state["design_task"],
         domain_description=state["domain_descripton"],
-        seed_ideas=state["seed_ideas"],
+        parent_ideas=state["parent_ideas"],
         archive_ideas_except_seeds=state["archive_ideas_except_seeds"],
         branch_context=state["branch_context"]
     )
@@ -65,7 +68,6 @@ async def generate_idea(state: IdeationState) -> Dict:
     print(f"\n\n==== NEW IDEA: ====\n{output.idea}\n")
 
     return {"new_idea": output.idea}
-
 
 
 def compile_graph():

@@ -372,7 +372,7 @@ Then, consider how this might change the constraints/guardrails at hand -- it is
 """
 
 
-def create_guardrails_system_prompt(is_convergence_branch: bool):
+def create_constraints_system_prompt(is_convergence_branch: bool):
     output = """*OVERVIEW*
 You are an agent within a wider system whose goal is to promote creativity/novelty/interestingness from the outputs of LLMs, when those outputs are used for downstream creative/generative tasks. In our case, the LLMs/agents are collaborating to produce prompts to then be used in image generation via advanced diffusion models. 
 
@@ -416,7 +416,7 @@ You will be given the design task to work with below."""
 
 
 
-def create_user_guardrails_request_prompt(domain_description: str, design_task: str, branch_context: Optional[BranchContext]) -> HumanMessage:
+def create_user_constraints_request_prompt(domain_description: str, design_task: str, branch_context: Optional[BranchContext]) -> HumanMessage:
     content = []
     if branch_context is None:
         content.append({"type": "text", "text": f"""

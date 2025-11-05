@@ -6,6 +6,10 @@ from langchain_core.messages import HumanMessage
 
 from langgraphs.utils import encode_image_to_data_url
 
+
+# TODO: consider rewording 'seed ideas' in prompt to 'parent ideas'
+
+
 def create_convergence_extra_prompt() -> str:
     return f"""====== IMPORTANT ADDITIONAL INFORMATION ======
 You are operating in a CONVERGENT BRANCH of the current creative session. What this means is, we are no longer in the initial fully divergent phase, where the user has only given their design task.
@@ -74,8 +78,11 @@ def create_ideas_string(ideas: List[str], idea_type: str) -> str:
 
 
 
-def create_user_ideation_prompt(creative_strategy: str, design_task: str, domain_description: str, seed_ideas: List[str], archive_ideas_except_seeds: List[str], branch_context: Optional[BranchContext]) -> HumanMessage:
-    seed_ideas_str = create_ideas_string(ideas=seed_ideas, idea_type="Seed Idea")
+def create_user_ideation_prompt(creative_strategy: str, design_task: str, domain_description: str, parent_ideas: Optional[List[str]], archive_ideas_except_seeds: List[str], branch_context: Optional[BranchContext]) -> HumanMessage:
+    if parent_ideas is None:
+        parent_ideas_str = "No seed ideas avaiable yet. Use the design task itself for inspiration."
+    else:
+        parent_ideas_str = create_ideas_string(ideas=parent_ideas, idea_type="Seed Idea")
     archive_ideas_except_seeds_str = create_ideas_string(ideas=archive_ideas_except_seeds, idea_type="Existing Idea")
     
     content = []
@@ -149,7 +156,7 @@ CREATIVE STRATEGY:
 
 SEED IDEAS:
 =====
-{seed_ideas_str}
+{parent_ideas_str}
 =====
 
 Your role is extremely important, and getting truly creative/novel/interesting outputs is extremely important to me; and so is achieving my design task, and not straying too far from its central spirit.

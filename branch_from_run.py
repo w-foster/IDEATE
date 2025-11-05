@@ -131,7 +131,7 @@ async def run_branch(
     session = CreativeSession(
         design_task=parent_cfg["design_task"],
         domain_description=parent_cfg["domain_description"],
-        genotpye_guidance=PROMPT_ENGINEERING_GUIDANCE,
+        blueprint_guidance=PROMPT_ENGINEERING_GUIDANCE,
         bfl_model=model,
         use_raw_mode=bool(parent_cfg.get("use_raw_mode", False)),
         using_fixed_strategy=False,

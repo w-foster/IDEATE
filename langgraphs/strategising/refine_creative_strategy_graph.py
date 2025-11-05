@@ -1,4 +1,4 @@
-from typing import TypedDict, Dict, List, Optional, cast
+from typing import TypedDict, Dict, List, Optional, Union, cast
 from pydantic import BaseModel, Field
 from dotenv import load_dotenv, find_dotenv
 import os
@@ -15,14 +15,13 @@ from langchain_openai import ChatOpenAI
 
 from langgraphs.strategising import prompts
 from core.solution import Solution
+from langgraphs.types import LGModelSpec
+from langgraphs.utils import agent_model_name
+from new_core.models.image_solution import ImageSolution  # temp just add in and union
 from core.branch_context import BranchContext
 
 
 load_dotenv(find_dotenv())
-
-CREATIVE_STRATEGY_LLM_MODEL = os.getenv("CREATIVE_STRATEGY_LLM_MODEL") or "openai:o3"
-VLM_MODEL = os.getenv("VLM_MODEL") or "openai:o3"
-# LLM_API_KEY = os.getenv("LLM_API_KEY")
 
 
 class RefinedCreativeStrategy(BaseModel):
@@ -39,12 +38,13 @@ class ArchiveAnalysis(BaseModel):
 
 
 class CreativeStrategyRefinementState(TypedDict):
+    model_spec: LGModelSpec
     design_task: str
     domain_description: str
 
     current_strategy: str
     high_level_guardrails: str
-    archive_solutions: List[Solution]
+    archive_solutions: Union[List[Solution], List[ImageSolution]]
     num_offspring: int
 
     archive_analysis: str
@@ -52,9 +52,9 @@ class CreativeStrategyRefinementState(TypedDict):
     branch_context: Optional[BranchContext]
 
 
-
+# TODO: pull out into its own graph!!!
 async def analyse_archive(state: CreativeStrategyRefinementState):
-    archive_analyser = ChatOpenAI(model=VLM_MODEL).with_structured_output(ArchiveAnalysis)
+    archive_analyser = ChatOpenAI(model=state["model_spec"]["name"]).with_structured_output(ArchiveAnalysis)
 
     archive_img_paths = [sol.img_path for sol in state["archive_solutions"]]
 
@@ -82,7 +82,7 @@ async def analyse_archive(state: CreativeStrategyRefinementState):
 
 async def generate_refined_strategy(state: CreativeStrategyRefinementState) -> Dict:
     strategy_refiner = create_react_agent( 
-        model=CREATIVE_STRATEGY_LLM_MODEL,
+        model=agent_model_name(state["model_spec"]),
         prompt=prompts.create_creative_strategy_refinement_system_prompt(
             is_convergence_branch=state["branch_context"] is not None
         ),

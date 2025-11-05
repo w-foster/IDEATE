@@ -1,6 +1,8 @@
 from pathlib import Path
 import base64
 
+from langgraphs.types import LGModelSpec
+
 # Directory where test images live (relative to this utils file)
 HERE = Path(__file__).parent
 TEST_IMAGES_DIR = HERE / "test_images"
@@ -34,3 +36,10 @@ def encode_image_to_data_url(path: str) -> str:
     # Last resort: return as‑is
     return path
 
+
+def agent_model_name(model_spec: LGModelSpec) -> str:
+    if "provider" not in model_spec:
+        raise RuntimeError("key 'provider' missing from LGModelSpec instance; cannot build model name for LangGraph agent")
+    provider = model_spec["provider"]
+    name = model_spec["name"]
+    return f"{provider}:{name}"
