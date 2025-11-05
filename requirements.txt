@@ -28,7 +28,6 @@ httpcore==1.0.9
 httplib2==0.22.0
 httpx==0.28.1
 idna==3.10
--e git+https://github.com/w-foster/iqd-v2.git@a80c91d4e62d457a8c4ccfd2f12b333b86008c2c#egg=iqd_v2
 Jinja2==3.1.6
 jiter==0.10.0
 jsonpatch==1.33
